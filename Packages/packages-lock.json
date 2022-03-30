@@ -1,5 +1,12 @@
 {
   "dependencies": {
+    "com.coffee.upm-git-extension": {
+      "version": "https://github.com/mob-sakai/UpmGitExtension.git#develop",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "232c6e983b729da54ee33a3ccd2ced6f5715567f"
+    },
     "com.unity.collab-proxy": {
       "version": "1.15.13",
       "depth": 0,
@@ -81,6 +88,20 @@
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
       }
+    },
+    "open-source-unity-package.axial-symmetry-terrain": {
+      "version": "https://github.com/OpenSourceUnityPackage/AxialSymmetryTerrain.git#1.0.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "479b178b95ffba6a7004c25e4488fb061d72e0bf"
+    },
+    "open-source-unity-package.selection-zone": {
+      "version": "https://github.com/OpenSourceUnityPackage/SelectionZone.git#1.0.0",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "9f4abe4e354ce0f32785c01272adc38f5a4de6fa"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
