@@ -7,15 +7,6 @@
       "dependencies": {},
       "hash": "232c6e983b729da54ee33a3ccd2ced6f5715567f"
     },
-    "com.unity.collab-proxy": {
-      "version": "1.15.13",
-      "depth": 0,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.services.core": "1.0.1"
-      },
-      "url": "https://packages.unity.com"
-    },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
       "depth": 2,
@@ -37,15 +28,6 @@
       "depth": 0,
       "source": "registry",
       "dependencies": {},
-      "url": "https://packages.unity.com"
-    },
-    "com.unity.services.core": {
-      "version": "1.0.1",
-      "depth": 1,
-      "source": "registry",
-      "dependencies": {
-        "com.unity.modules.unitywebrequest": "1.0.0"
-      },
       "url": "https://packages.unity.com"
     },
     "com.unity.test-framework": {
@@ -97,11 +79,11 @@
       "hash": "479b178b95ffba6a7004c25e4488fb061d72e0bf"
     },
     "open-source-unity-package.selection-zone": {
-      "version": "https://github.com/OpenSourceUnityPackage/SelectionZone.git#1.0.0",
+      "version": "https://github.com/OpenSourceUnityPackage/SelectionZone.git#1.1.0",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "9f4abe4e354ce0f32785c01272adc38f5a4de6fa"
+      "hash": "1a36a2cdeb1d3dd3857af8c74cdea76ae2ea51e6"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",

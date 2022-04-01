@@ -865,7 +865,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1645251114}
-  - component: {fileID: 1645251113}
   m_Layer: 0
   m_Name: Managers
   m_TagString: Untagged
@@ -873,23 +872,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1645251113
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1645251112}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b77270d5f4b4df24f81d9b3a98d0cfaa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  camera: {fileID: 963194227}
-  style:
-    thickness: 2
-    fillColor: {r: 0.8, g: 0.8, b: 0.95, a: 0.25}
-    edgeColor: {r: 0.8, g: 0.8, b: 0.95, a: 1}
 --- !u!4 &1645251114
 Transform:
   m_ObjectHideFlags: 0

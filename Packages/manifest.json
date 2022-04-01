@@ -1,12 +1,13 @@
 {
   "dependencies": {
-    "com.unity.collab-proxy": "1.15.13",
+    "com.coffee.upm-git-extension": "https://github.com/mob-sakai/UpmGitExtension.git#develop",
     "com.unity.ide.rider": "2.0.7",
     "com.unity.ide.vscode": "1.2.5",
     "com.unity.textmeshpro": "3.0.6",
     "com.unity.timeline": "1.4.8",
     "com.unity.ugui": "1.0.0",
     "open-source-unity-package.axial-symmetry-terrain": "https://github.com/OpenSourceUnityPackage/AxialSymmetryTerrain.git#1.0.0",
+    "open-source-unity-package.selection-zone": "https://github.com/OpenSourceUnityPackage/SelectionZone.git#1.1.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.animation": "1.0.0",
     "com.unity.modules.audio": "1.0.0",
@@ -18,8 +19,6 @@
     "com.unity.modules.terrainphysics": "1.0.0",
     "com.unity.modules.ui": "1.0.0",
     "com.unity.modules.uielements": "1.0.0",
-    "com.unity.modules.unityanalytics": "1.0.0",
-    "com.coffee.upm-git-extension": "https://github.com/mob-sakai/UpmGitExtension.git#develop",
-    "open-source-unity-package.selection-zone": "https://github.com/OpenSourceUnityPackage/SelectionZone.git#1.0.0"
+    "com.unity.modules.unityanalytics": "1.0.0"
   }
 }

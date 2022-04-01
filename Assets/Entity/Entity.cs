@@ -1,12 +1,24 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
-using EntSelect;
+using UnitSelectionPackage;
 using UnityEngine;
 
-public class Entity : MonoBehaviour, ISelectable
+public class Entity : MonoBehaviour, ISelectable, IHaveOptions
 {
-    private bool m_isSelected;
+    private bool m_isSelected = false;
     private Material m_material;
+    public ETeam team;
+
+    private void OnEnable()
+    {
+        GameManager.Instance.RegisterUnit(team, this);
+    }
+
+    private void OnDisable()
+    {
+        if(gameObject.scene.isLoaded)
+            GameManager.Instance.UnregisterUnit(team, this);
+    }
 
     protected void Awake()
     {
@@ -22,5 +34,10 @@ public class Entity : MonoBehaviour, ISelectable
     public bool IsSelected()
     {
         return m_isSelected;
+    }
+    
+    public List<Option> GetOptions()
+    {
+        throw new NotImplementedException();
     }
 }
