@@ -8,6 +8,7 @@ public class Entity : MonoBehaviour, ISelectable, IHaveOptions
     private bool m_isSelected = false;
     private Material m_material;
     public ETeam team;
+    private Color m_baseColor;
 
     private void OnEnable()
     {
@@ -23,12 +24,13 @@ public class Entity : MonoBehaviour, ISelectable, IHaveOptions
     protected void Awake()
     {
         m_material = GetComponent<Renderer>().material;
+        m_baseColor = m_material.color;
     }
 
     public void SetSelected(bool selected)
     {
         m_isSelected = selected;
-        m_material.color = m_isSelected ? Color.red : Color.white;
+        m_material.color = m_isSelected ? Color.yellow : m_baseColor;
     }
     
     public bool IsSelected()
