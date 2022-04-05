@@ -61,7 +61,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 9a5702152d66d5c40b7f75dee4c8dee8, type: 2}
+  - {fileID: 2100000, guid: 495dff597c032844d9a26eb60f165930, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -111,7 +111,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   team: 0
   actions:
-  - Stop
   - Move
   speed: 2
   distanceToReach: 0.1
@@ -125,7 +124,7 @@ GameObject:
   m_Component:
   - component: {fileID: 787350293450187484}
   m_Layer: 0
-  m_Name: Team1Unit
+  m_Name: Team1Unit2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
