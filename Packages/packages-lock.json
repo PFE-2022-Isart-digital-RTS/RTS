@@ -78,12 +78,19 @@
       "dependencies": {},
       "hash": "479b178b95ffba6a7004c25e4488fb061d72e0bf"
     },
-    "open-source-unity-package.selection-zone": {
-      "version": "https://github.com/OpenSourceUnityPackage/SelectionZone.git#1.1.0",
+    "open-source-unity-package.contextual-menu": {
+      "version": "https://github.com/OpenSourceUnityPackage/ContextualMenu.git#1.3.0",
       "depth": 0,
       "source": "git",
       "dependencies": {},
-      "hash": "1a36a2cdeb1d3dd3857af8c74cdea76ae2ea51e6"
+      "hash": "e82a2d6a400fe19b56652400a8d1c540d4e432c3"
+    },
+    "open-source-unity-package.selection-zone": {
+      "version": "https://github.com/OpenSourceUnityPackage/SelectionZone.git#1.1.1",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "999586be91a19b64d541bf93f964069abc8d158a"
     },
     "com.unity.modules.ai": {
       "version": "1.0.0",
