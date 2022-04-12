@@ -59,8 +59,12 @@ public class GameManager : MonoBehaviour
         
         m_eventSystem = EventSystem.current;
         
-        m_contextualMenu.AddTask("Move", new MoveContext());
-        m_contextualMenu.AddTask("Stop", new Stop());
+        
+        /* FIXME: Proper task handling
+         * 
+         * m_contextualMenu.AddTask("Move", new MoveContext());
+         * m_contextualMenu.AddTask("Stop", new Stop());
+         */
 
         btnMove.onValueChanged.AddListener(delegate
         {

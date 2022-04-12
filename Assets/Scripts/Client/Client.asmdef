@@ -1,0 +1,7 @@
+{
+  "name": "Client",
+  "references": [
+    "Unity.Netcode.Runtime",
+    "Shared"
+  ]
+}

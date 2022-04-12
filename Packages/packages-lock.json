@@ -7,6 +7,25 @@
       "dependencies": {},
       "hash": "232c6e983b729da54ee33a3ccd2ced6f5715567f"
     },
+    "com.unity.burst": {
+      "version": "1.5.4",
+      "depth": 2,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.mathematics": "1.2.1"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.collections": {
+      "version": "1.1.0",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.burst": "1.5.4",
+        "com.unity.test-framework": "1.1.29"
+      },
+      "url": "https://packages.unity.com"
+    },
     "com.unity.ext.nunit": {
       "version": "1.0.6",
       "depth": 2,
@@ -26,6 +45,49 @@
     "com.unity.ide.vscode": {
       "version": "1.2.5",
       "depth": 0,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.mathematics": {
+      "version": "1.2.1",
+      "depth": 3,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.multiplayer.tools": {
+      "version": "1.0.0-pre.2",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.profiling.core": "1.0.0-pre.1"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.netcode.gameobjects": {
+      "version": "1.0.0-pre.5",
+      "depth": 0,
+      "source": "registry",
+      "dependencies": {
+        "com.unity.modules.animation": "1.0.0",
+        "com.unity.modules.physics": "1.0.0",
+        "com.unity.modules.physics2d": "1.0.0",
+        "com.unity.nuget.mono-cecil": "1.10.1",
+        "com.unity.collections": "1.1.0"
+      },
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.nuget.mono-cecil": {
+      "version": "1.10.1",
+      "depth": 1,
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://packages.unity.com"
+    },
+    "com.unity.profiling.core": {
+      "version": "1.0.0-pre.1",
+      "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.unity.com"
@@ -70,6 +132,13 @@
         "com.unity.modules.ui": "1.0.0",
         "com.unity.modules.imgui": "1.0.0"
       }
+    },
+    "com.veriorpies.parrelsync": {
+      "version": "https://github.com/VeriorPies/ParrelSync.git?path=/ParrelSync#1.5.1",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "cb1a048ea05b242f48f0bf9473b096a352192b8c"
     },
     "open-source-unity-package.axial-symmetry-terrain": {
       "version": "https://github.com/OpenSourceUnityPackage/AxialSymmetryTerrain.git#1.0.0",
@@ -140,6 +209,12 @@
     "com.unity.modules.physics": {
       "version": "1.0.0",
       "depth": 0,
+      "source": "builtin",
+      "dependencies": {}
+    },
+    "com.unity.modules.physics2d": {
+      "version": "1.0.0",
+      "depth": 1,
       "source": "builtin",
       "dependencies": {}
     },
