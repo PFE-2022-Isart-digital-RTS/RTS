@@ -3,6 +3,7 @@
   "references": [
     "Shared",
     "Unity.Netcode.Runtime",
-    "open-source-unity-package.contextual-menu.Runtime"
+    "open-source-unity-package.contextual-menu.Runtime",
+    "open-source-unity-package.selection-zone.Runtime"
   ]
 }
