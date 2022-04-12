@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnitSelectionPackage;
 using ContextualMenuPackage;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -57,24 +58,28 @@ public class GameManager : MonoBehaviour
             m_teamsUnits[index] = new List<Entity>();
         }
         
-        m_eventSystem = EventSystem.current;
-        
-        
-        /* FIXME: Proper task handling
-         * 
-         * m_contextualMenu.AddTask("Move", new MoveContext());
-         * m_contextualMenu.AddTask("Stop", new Stop());
-         */
-
-        btnMove.onValueChanged.AddListener(delegate
+        NetworkManager.Singleton.OnClientConnectedCallback += obj =>
         {
-            m_contextualMenu.InvokeTask("Move");
-        });
+            NetworkObject playerObject = NetworkManager.Singleton.ConnectedClients[obj].PlayerObject;
+            mainCamera = playerObject.GetComponentInChildren<Camera>();
+            btnMove = playerObject.GetComponentInChildren<Toggle>(true);
+            btnStop = playerObject.GetComponentInChildren<Button>(true);
+            
+            btnMove.onValueChanged.AddListener(delegate
+            {
+                m_contextualMenu.InvokeTask("Move");
+            });
         
-        btnStop.onClick.AddListener(delegate
-        {
-            m_contextualMenu.InvokeTask("Stop");
-        });
+            btnStop.onClick.AddListener(delegate
+            {
+                m_contextualMenu.InvokeTask("Stop");
+            });
+            
+            m_eventSystem = EventSystem.current;
+        };
+        
+        m_contextualMenu.AddTask("Move", new MoveContext());
+        m_contextualMenu.AddTask("Stop", new Stop());
     }
 
     private void OnEnable()
@@ -106,41 +111,45 @@ public class GameManager : MonoBehaviour
     
     private void Update()
     {
-        // On click on world
-        bool isPointerOverGameObject = m_eventSystem.IsPointerOverGameObject();
-
-        if (Input.GetMouseButtonDown(1) && !isPointerOverGameObject)
+        if (m_eventSystem != null)
         {
-            if (RequestPosition != null)
+            // On click on world
+            bool isPointerOverGameObject = m_eventSystem.IsPointerOverGameObject();
+
+            if (Input.GetMouseButtonDown(1) && !isPointerOverGameObject)
             {
-                RaycastHit hit;
-                // Does the ray intersect any objects excluding the player layer
-                if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity, m_layerGround))
+                if (RequestPosition != null)
                 {
-                    RequestPosition.Invoke(hit.point);
+                    RaycastHit hit;
+                    // Does the ray intersect any objects excluding the player layer
+                    if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity,
+                        m_layerGround))
+                    {
+                        RequestPosition.Invoke(hit.point);
+                    }
                 }
             }
-        }
 
-        if (Input.GetMouseButtonDown(0) && !isPointerOverGameObject)
-        {
-            if (!m_isSelecting)
+            if (Input.GetMouseButtonDown(0) && !isPointerOverGameObject)
             {
-                m_unitSelection.OnSelectionBegin(Input.mousePosition);
-                m_isSelecting = true;
+                if (!m_isSelecting)
+                {
+                    m_unitSelection.OnSelectionBegin(Input.mousePosition);
+                    m_isSelecting = true;
+                }
             }
-        }
 
-        if (m_isSelecting)
-        {
-            m_unitSelection.OnSelectionProcess(mainCamera, Input.mousePosition);
-        }
+            if (m_isSelecting)
+            {
+                m_unitSelection.OnSelectionProcess(mainCamera, Input.mousePosition);
+            }
 
-        if (Input.GetMouseButtonUp(0) && !isPointerOverGameObject)
-        {
-            RequestPosition = null;
-            m_unitSelection.OnSelectionEnd();
-            m_isSelecting = false;
+            if (Input.GetMouseButtonUp(0) && !isPointerOverGameObject)
+            {
+                RequestPosition = null;
+                m_unitSelection.OnSelectionEnd();
+                m_isSelecting = false;
+            }
         }
     }
 
