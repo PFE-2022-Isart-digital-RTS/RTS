@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class GameManager : MonoBehaviour
+public class GameManager : SingletonMonoBehaviour<GameManager>
 {
     private SharedContextualMenu<Entity> m_contextualMenu = new SharedContextualMenu<Entity>();
     private List<Entity>[] m_teamsUnits = new List<Entity>[(int) ETeam.TeamCount];
@@ -22,31 +22,7 @@ public class GameManager : MonoBehaviour
     public Button btnStop;
 
     public Action<Vector3> RequestPosition { get; set; }
-
-    #region Singleton
-
-    private static GameManager m_Instance = null;
-
-    public static GameManager Instance
-    {
-        get
-        {
-            if (m_Instance == null)
-            {
-                m_Instance = FindObjectOfType<GameManager>();
-                if (m_Instance == null)
-                {
-                    GameObject newObj = new GameObject("GameManager");
-                    m_Instance = Instantiate(newObj).AddComponent<GameManager>();
-                }
-            }
-
-            return m_Instance;
-        }
-    }
-
-    #endregion
-
+    
     #region MonoBehaviour
 
     private void Awake()
