@@ -21,7 +21,7 @@ public class Entity : NetworkBehaviour, ISelectable, IContextualizable
     #region MonoBehaviour
     protected void Awake()
     {
-        m_material = GetComponent<Renderer>().material;
+        m_material = GetComponentInChildren<Renderer>().material;
         m_baseColor = m_material.color;
     }
     
@@ -40,7 +40,7 @@ public class Entity : NetworkBehaviour, ISelectable, IContextualizable
     {
         if (isMoving)
         {
-            Transform selfTransform = transform;
+            Transform selfTransform = transform.parent.transform;
             Vector3 position = selfTransform.position;
             Vector3 posToTarget = positionToReach - position;
             float posToTargetDistance = posToTarget.magnitude;
