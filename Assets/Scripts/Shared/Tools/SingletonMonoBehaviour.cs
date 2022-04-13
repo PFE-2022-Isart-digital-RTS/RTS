@@ -25,7 +25,7 @@ public class SingletonMonoBehaviour<T> : MonoBehaviour
                 if (m_Instance == null)
                 {
                     GameObject newObj = new GameObject(typeof(T).Name);
-                    m_Instance = Instantiate(newObj).AddComponent<T>();
+                    m_Instance = newObj.AddComponent<T>();
                 }
             }
 

@@ -1,10 +1,10 @@
-using System;
 using System.Collections.Generic;
 using ContextualMenuPackage;
 using UnitSelectionPackage;
+using Unity.Netcode;
 using UnityEngine;
 
-public class Entity : MonoBehaviour, ISelectable, IContextualizable
+public class Entity : NetworkBehaviour, ISelectable, IContextualizable
 {
     private bool m_isSelected = false;
     private Material m_material;
@@ -27,13 +27,13 @@ public class Entity : MonoBehaviour, ISelectable, IContextualizable
     
     private void OnEnable()
     {
-        GameManager.Instance.RegisterEntity(team, this);
+        SharedGameManager.Instance.onRegisterEntity(team, this);
     }
 
     private void OnDisable()
     {
         if(gameObject.scene.isLoaded)
-            GameManager.Instance.UnregisterEntity(team, this);
+            SharedGameManager.Instance.onUnregisterEntity(team, this);
     }
     
     private void FixedUpdate()

@@ -9,7 +9,7 @@ public class MoveContext : ITask<Entity>
     public void OnInvoked(List<Entity> targets)
     {
         m_targets = targets;
-        GameManager.Instance.RequestPosition += OnPositionIndicate;
+        ClientGameManager.Instance.RequestPosition += OnPositionIndicate;
     }
 
     void OnPositionIndicate(Vector3 position)

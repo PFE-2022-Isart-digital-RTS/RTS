@@ -1,32 +1,75 @@
 using System;
 using System.Collections.Generic;
-using UnitSelectionPackage;
+using System.Linq;
 using ContextualMenuPackage;
+using UnitSelectionPackage;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
-public class GameManager : SingletonMonoBehaviour<GameManager>
+/*public class NetworkEntityList : INetworkSerializable
 {
+    private List<int> m_teamsUnits;
+        
+    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
+    {
+        int length = 0;
+        if (serializer.IsWriter)
+        {
+            length = m_teamsUnits.Count;
+        }
+ 
+        serializer.SerializeValue(ref length);
+ 
+        // Array
+        if (serializer.IsReader)
+        {
+            m_teamsUnits = new List<int>(length);
+            
+            for (int n = 0; n < length; ++n)
+            {
+                int val = 0;
+                serializer.SerializeValue(ref val);
+                m_teamsUnits.Add(val);
+            }
+        }
+        else
+        {
+            for (int n = 0; n < length; ++n)
+            {
+                int val = m_teamsUnits[n];
+                serializer.SerializeValue(ref val);
+            }
+        }
+    }
+}*/
+
+public class ClientGameManager : SingletonMonoBehaviour<ClientGameManager>
+{
+    List<Entity>[] m_teamsUnits = new List<Entity>[(int) ETeam.TeamCount];
+    
     private SharedContextualMenu<Entity> m_contextualMenu = new SharedContextualMenu<Entity>();
-    private List<Entity>[] m_teamsUnits = new List<Entity>[(int) ETeam.TeamCount];
     
     public Camera mainCamera;
     private UnitSelection<Entity> m_unitSelection = new UnitSelection<Entity>();
     private bool m_isSelecting;
-    private EventSystem m_eventSystem;
+    public EventSystem m_eventSystem;
     private int m_layerGround;
     
     public Toggle btnMove;
     public Button btnStop;
-
+    
     public Action<Vector3> RequestPosition { get; set; }
+
     
     #region MonoBehaviour
 
     private void Awake()
     {
+        SharedGameManager.Instance.onRegisterEntity += RegisterEntity;
+        SharedGameManager.Instance.onUnregisterEntity += UnregisterEntity;
+        
         m_layerGround = 1 << LayerMask.NameToLayer("Floor");
         
         for (var index = 0; index < m_teamsUnits.Length; index++)
@@ -34,25 +77,15 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             m_teamsUnits[index] = new List<Entity>();
         }
         
-        NetworkManager.Singleton.OnClientConnectedCallback += obj =>
+        btnMove.onValueChanged.AddListener(delegate
         {
-            NetworkObject playerObject = NetworkManager.Singleton.ConnectedClients[obj].PlayerObject;
-            mainCamera = playerObject.GetComponentInChildren<Camera>();
-            btnMove = playerObject.GetComponentInChildren<Toggle>(true);
-            btnStop = playerObject.GetComponentInChildren<Button>(true);
-            
-            btnMove.onValueChanged.AddListener(delegate
-            {
-                m_contextualMenu.InvokeTask("Move");
-            });
+            m_contextualMenu.InvokeTask("Move");
+        });
         
-            btnStop.onClick.AddListener(delegate
-            {
-                m_contextualMenu.InvokeTask("Stop");
-            });
-            
-            m_eventSystem = EventSystem.current;
-        };
+        btnStop.onClick.AddListener(delegate
+        {
+            m_contextualMenu.InvokeTask("Stop");
+        });
         
         m_contextualMenu.AddTask("Move", new MoveContext());
         m_contextualMenu.AddTask("Stop", new Stop());
@@ -61,6 +94,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     private void OnEnable()
     {
         m_unitSelection.SetObserver(m_teamsUnits[(int) ETeam.Team1]);
+        
         m_unitSelection.OnSelection += selected =>
         {
             m_contextualMenu.SetContextualizable(selected);
@@ -138,7 +172,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     }
 
     #endregion
-
+    
     /// <summary>
     /// Need to be called in OnEnable
     /// </summary>
