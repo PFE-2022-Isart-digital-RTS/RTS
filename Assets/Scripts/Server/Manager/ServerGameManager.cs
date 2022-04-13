@@ -6,9 +6,11 @@ public class ServerGameManager : SingletonMonoBehaviour<ServerGameManager>
 
     private void Awake()
     {
+        DontDestroyOnLoad(this);
+        
         SharedGameManager.Instance.onRegisterEntity += RegisterEntity;
         SharedGameManager.Instance.onUnregisterEntity += UnregisterEntity;
-        
+
         for (var index = 0; index < m_teamsUnits.Length; index++)
         {
             m_teamsUnits[index] = new List<Entity>();

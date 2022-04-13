@@ -1,5 +1,9 @@
 using UnityEngine;
 
+/// <summary>
+/// Warning ! Singleton ise not DontDestroyOnLoad.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class SingletonMonoBehaviour<T> : MonoBehaviour
     where T : Component
 {

@@ -67,6 +67,8 @@ public class ClientGameManager : SingletonMonoBehaviour<ClientGameManager>
 
     private void Awake()
     {
+        DontDestroyOnLoad(this);
+        
         SharedGameManager.Instance.onRegisterEntity += RegisterEntity;
         SharedGameManager.Instance.onUnregisterEntity += UnregisterEntity;
         

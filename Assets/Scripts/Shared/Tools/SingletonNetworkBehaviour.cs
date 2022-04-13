@@ -1,6 +1,10 @@
 using Unity.Netcode;
 using UnityEngine;
 
+/// <summary>
+/// Warning ! Singleton ise not DontDestroyOnLoad.
+/// </summary>
+/// <typeparam name="T"></typeparam>
 public class SingletonNetworkBehaviour<T> : NetworkBehaviour
     where T : Component
 {
