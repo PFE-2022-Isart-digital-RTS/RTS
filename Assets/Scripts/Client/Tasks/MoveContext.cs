@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using ContextualMenuPackage;
+using Unity.Netcode;
 using UnityEngine;
 
 public class MoveContext : ITask<Entity>
@@ -29,8 +30,9 @@ public class MoveContext : ITask<Entity>
             int r = i / NumberOfCharactersRow;
             int c = i % NumberOfCharactersRow;
             Vector3 offset = new Vector3(r * Distance, 0f, c * Distance);
-            Vector3 pos = position + offset - OffsetFromStart;
-            NetworkDataExchanger.Instance.SendReceiveDataServerRPC(new NetworkGameData{header = EDataHeader.MoveTo, dataByte = new BinaryData(pos)});
+            SerializableVector3 pos = position + offset - OffsetFromStart;
+            
+            NetworkManager.Singleton.LocalClient.PlayerObject.GetComponent<NetworkDataExchanger>().SendReceiveDataServerRPC(new NetworkGameData{header = EDataHeader.MoveTo, dataByte = new BinaryData(pos)});
         }
     }
 }

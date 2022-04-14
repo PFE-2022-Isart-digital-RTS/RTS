@@ -9,23 +9,28 @@ public class NetworkDataReceiver : NetworkBehaviour
         DontDestroyOnLoad(this);
     }
     
-    public override void OnNetworkSpawn()
+    void Start()
     {
-        NetworkDataExchanger.Instance.DoActionEventServer += OnDataReceive;
+        NetworkManager.Singleton.OnClientConnectedCallback += id =>
+        {
+            if (IsServer)
+                NetworkManager.Singleton.ConnectedClients[id].PlayerObject.GetComponent<NetworkDataExchanger>().DoActionEventServer += OnDataReceive;
+        };
+        
+        NetworkManager.Singleton.OnClientDisconnectCallback += id =>
+        {
+            if (IsServer)
+                NetworkManager.Singleton.ConnectedClients[id].PlayerObject.GetComponent<NetworkDataExchanger>().DoActionEventServer -= OnDataReceive;
+        };
     }
-
-    public override void OnNetworkDespawn()
-    {
-        NetworkDataExchanger.Instance.DoActionEventServer -= OnDataReceive;
-    }
-
+    
     void OnDataReceive(NetworkGameData data)
     {
         switch (data.header)
         {
             case EDataHeader.MoveTo:
-                Vector3 pos = (Vector3)data.dataByte.DeserializeData();
-                Debug.Log($"Move to {pos}");
+                SerializableVector3 pos = (SerializableVector3)data.dataByte.DeserializeData();
+                Debug.Log($"Move to {(Vector3)pos}");
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

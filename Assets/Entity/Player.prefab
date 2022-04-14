@@ -800,6 +800,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2352711460999208148}
   - component: {fileID: 8183890560219877550}
+  - component: {fileID: 3341511302608857495}
   - component: {fileID: 4102360700479788592}
   m_Layer: 0
   m_Name: Player
@@ -841,6 +842,18 @@ MonoBehaviour:
   m_eventSystem: {fileID: 203425401}
   btnMove: {fileID: 162786438}
   btnStop: {fileID: 1384040162}
+--- !u!114 &3341511302608857495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5452077647876833308}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a3c026a32a448cf49a8137e82117cfdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &4102360700479788592
 MonoBehaviour:
   m_ObjectHideFlags: 0

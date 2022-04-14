@@ -1,7 +1,7 @@
 using System;
 using Unity.Netcode;
 
-public class NetworkDataExchanger : SingletonNetworkBehaviour<NetworkDataExchanger>
+public class NetworkDataExchanger : NetworkBehaviour
 {
     /// <summary>
     /// This event is raised on the server when an action request arrives
