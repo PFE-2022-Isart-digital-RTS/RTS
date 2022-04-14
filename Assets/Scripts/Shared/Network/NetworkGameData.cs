@@ -37,12 +37,24 @@ public struct BinaryData
 
 public struct NetworkGameData : INetworkSerializable
 {
+    private BinaryData dataByte;
+    
     public EDataHeader header;
-    public BinaryData dataByte;
+    public object obj;
     
     public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
     {
+        if (serializer.IsWriter)
+        {
+            dataByte = new BinaryData(obj);
+        }
+        
         serializer.SerializeValue(ref header);
         serializer.SerializeValue(ref dataByte.dataByte);
+        
+        if (serializer.IsReader)
+        {
+            obj = dataByte.DeserializeData();
+        }
     }
 }
