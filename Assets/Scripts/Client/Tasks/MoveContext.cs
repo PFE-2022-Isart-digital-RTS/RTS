@@ -29,7 +29,9 @@ public class MoveContext : ITask<Entity>
             int r = i / NumberOfCharactersRow;
             int c = i % NumberOfCharactersRow;
             Vector3 offset = new Vector3(r * Distance, 0f, c * Distance);
-            m_targets[i].MoveTo(position + offset - OffsetFromStart);
+            //ServerMoveInput(position + offset - OffsetFromStart)
+            
+            //m_targets[i].MoveTo(position + offset - OffsetFromStart);
         }
     }
 }

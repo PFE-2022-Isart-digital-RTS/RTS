@@ -1,0 +1,24 @@
+using Unity.Netcode;
+
+public class NetworkDataReceiver : NetworkBehaviour
+{
+    private void Awake()
+    {
+        DontDestroyOnLoad(this);
+    }
+    
+    public override void OnNetworkSpawn()
+    {
+        NetworkDataExchanger.Instance.DoActionEventServer += OnDataReceive;
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        NetworkDataExchanger.Instance.DoActionEventServer -= OnDataReceive;
+    }
+
+    void OnDataReceive(NetworkGameData data)
+    {
+        
+    }
+}
