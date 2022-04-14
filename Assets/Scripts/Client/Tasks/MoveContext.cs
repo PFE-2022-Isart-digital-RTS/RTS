@@ -29,9 +29,8 @@ public class MoveContext : ITask<Entity>
             int r = i / NumberOfCharactersRow;
             int c = i % NumberOfCharactersRow;
             Vector3 offset = new Vector3(r * Distance, 0f, c * Distance);
-            //ServerMoveInput(position + offset - OffsetFromStart)
-            
-            //m_targets[i].MoveTo(position + offset - OffsetFromStart);
+            Vector3 pos = position + offset - OffsetFromStart;
+            NetworkDataExchanger.Instance.SendReceiveDataServerRPC(new NetworkGameData{header = EDataHeader.MoveTo, dataByte = new BinaryData(pos)});
         }
     }
 }

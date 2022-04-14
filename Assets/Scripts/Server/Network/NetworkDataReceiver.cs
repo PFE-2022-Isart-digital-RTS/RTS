@@ -1,4 +1,6 @@
+using System;
 using Unity.Netcode;
+using UnityEngine;
 
 public class NetworkDataReceiver : NetworkBehaviour
 {
@@ -19,6 +21,14 @@ public class NetworkDataReceiver : NetworkBehaviour
 
     void OnDataReceive(NetworkGameData data)
     {
-        
+        switch (data.header)
+        {
+            case EDataHeader.MoveTo:
+                Vector3 pos = (Vector3)data.dataByte.DeserializeData();
+                Debug.Log($"Move to {pos}");
+                break;
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
     }
 }

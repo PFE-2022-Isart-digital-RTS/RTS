@@ -13,7 +13,7 @@ public class NetworkDataExchanger : SingletonNetworkBehaviour<NetworkDataExchang
     /// </summary>
     /// <param name="data">Data about which action to play and its associated details. </param>
     [ServerRpc]
-    public void ReceiveSendDataServerRPC(NetworkGameData data)
+    public void SendReceiveDataServerRPC(NetworkGameData data)
     {
         DoActionEventServer?.Invoke(data);
     }

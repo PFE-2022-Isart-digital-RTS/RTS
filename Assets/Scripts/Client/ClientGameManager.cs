@@ -1,49 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using ContextualMenuPackage;
 using UnitSelectionPackage;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-
-/*public class NetworkEntityList : INetworkSerializable
-{
-    private List<int> m_teamsUnits;
-        
-    public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
-    {
-        int length = 0;
-        if (serializer.IsWriter)
-        {
-            length = m_teamsUnits.Count;
-        }
- 
-        serializer.SerializeValue(ref length);
- 
-        // Array
-        if (serializer.IsReader)
-        {
-            m_teamsUnits = new List<int>(length);
-            
-            for (int n = 0; n < length; ++n)
-            {
-                int val = 0;
-                serializer.SerializeValue(ref val);
-                m_teamsUnits.Add(val);
-            }
-        }
-        else
-        {
-            for (int n = 0; n < length; ++n)
-            {
-                int val = m_teamsUnits[n];
-                serializer.SerializeValue(ref val);
-            }
-        }
-    }
-}*/
 
 public class ClientGameManager : SingletonMonoBehaviour<ClientGameManager>
 {
