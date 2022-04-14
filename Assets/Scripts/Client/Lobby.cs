@@ -54,6 +54,7 @@ public class Lobby : MonoBehaviour
             if (NetworkManager.Singleton.StartServer())
             {
                 Debug.Log("serverButton success");
+                loadSceneButton.enabled = true;
             }
             else
             {

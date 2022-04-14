@@ -93,7 +93,6 @@ GameObject:
   - component: {fileID: 3892434891633721555}
   - component: {fileID: 5254730971584803473}
   - component: {fileID: 4953510395180600233}
-  - component: {fileID: 7750891594837982706}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -179,22 +178,6 @@ CapsuleCollider:
   m_Height: 2
   m_Direction: 1
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &7750891594837982706
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8336014410177090035}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a783d16329da5dd42991b62715417752, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  team: 1
-  actions: []
-  speed: 2
-  distanceToReach: 0.1
 --- !u!1 &9105993614704995009
 GameObject:
   m_ObjectHideFlags: 0
@@ -206,6 +189,7 @@ GameObject:
   - component: {fileID: 787350293450187484}
   - component: {fileID: 7165194099904218033}
   - component: {fileID: 5001557901554775697}
+  - component: {fileID: 909273193823088971}
   m_Layer: 0
   m_Name: Team2Unit
   m_TagString: Untagged
@@ -271,3 +255,19 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   CanCommitToTransform: 0
+--- !u!114 &909273193823088971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9105993614704995009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a783d16329da5dd42991b62715417752, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: 1
+  actions: []
+  speed: 2
+  distanceToReach: 0.1
