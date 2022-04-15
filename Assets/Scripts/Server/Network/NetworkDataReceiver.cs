@@ -1,4 +1,5 @@
 using System;
+using Shared.Task;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -29,8 +30,12 @@ public class NetworkDataReceiver : NetworkBehaviour
         switch (data.header)
         {
             case EDataHeader.MoveTo:
-                SerializableVector3 pos = (SerializableVector3)data.dataByte.DeserializeData();
-                Debug.Log($"Move to {(Vector3)pos}");
+                EntityPositionData taskData = (EntityPositionData)data.obj;
+
+                NetworkObject obj;
+                NetworkManager.Singleton.SpawnManager.SpawnedObjects.TryGetValue(taskData.entityId, out obj);
+                Debug.Log($"{obj.gameObject.name} moving to {(Vector3)taskData.targetPos}");
+                obj.gameObject.GetComponent<Entity>().MoveTo((Vector3)taskData.targetPos);
                 break;
             default:
                 throw new ArgumentOutOfRangeException();

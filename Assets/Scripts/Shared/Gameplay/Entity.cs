@@ -40,7 +40,7 @@ public class Entity : NetworkBehaviour, ISelectable, IContextualizable
     {
         if (isMoving)
         {
-            Transform selfTransform = transform.parent.transform;
+            Transform selfTransform = transform;
             Vector3 position = selfTransform.position;
             Vector3 posToTarget = positionToReach - position;
             float posToTargetDistance = posToTarget.magnitude;

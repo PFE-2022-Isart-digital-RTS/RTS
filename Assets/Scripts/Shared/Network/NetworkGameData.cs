@@ -7,36 +7,36 @@ public enum EDataHeader
     MoveTo // Data : Vector3
 }
 
-public struct BinaryData
+public struct NetworkGameData : INetworkSerializable
 {
-    public byte[] dataByte;
+    internal struct BinaryData
+    {
+        public byte[] dataByte;
 
-    public BinaryData(object data)
-    {
-        dataByte = SerializeData(data);
-    }
-    
-    private static byte[] SerializeData(object obj)
-    {
-        var binaryFormatter = new BinaryFormatter();
-        using (var memoryStream = new MemoryStream())
+        public BinaryData(object data)
         {
-            binaryFormatter.Serialize(memoryStream, obj);
-            return memoryStream.ToArray();
+            dataByte = SerializeData(data);
+        }
+    
+        private static byte[] SerializeData(object obj)
+        {
+            var binaryFormatter = new BinaryFormatter();
+            using (var memoryStream = new MemoryStream())
+            {
+                binaryFormatter.Serialize(memoryStream, obj);
+                return memoryStream.ToArray();
+            }
+        }
+    
+        public object DeserializeData()
+        {
+            var binaryFormatter = new BinaryFormatter{};
+
+            using (var memoryStream = new MemoryStream(dataByte))
+                return binaryFormatter.Deserialize(memoryStream);
         }
     }
     
-    public object DeserializeData()
-    {
-        var binaryFormatter = new BinaryFormatter{};
-
-        using (var memoryStream = new MemoryStream(dataByte))
-            return binaryFormatter.Deserialize(memoryStream);
-    }
-}
-
-public struct NetworkGameData : INetworkSerializable
-{
     private BinaryData dataByte;
     
     public EDataHeader header;
