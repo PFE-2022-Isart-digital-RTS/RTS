@@ -1,9 +1,19 @@
 {
-  "name": "Client",
-  "references": [
-    "Unity.Netcode.Runtime",
-    "Shared",
-    "open-source-unity-package.contextual-menu.Runtime",
-    "open-source-unity-package.selection-zone.Runtime"
-  ]
+    "name": "Client",
+    "rootNamespace": "",
+    "references": [
+        "Unity.Netcode.Runtime",
+        "Shared",
+        "open-source-unity-package.contextual-menu.Runtime",
+        "open-source-unity-package.selection-zone.Runtime"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
