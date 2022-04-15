@@ -1,0 +1,9 @@
+{
+  "name": "Client",
+  "references": [
+    "Unity.Netcode.Runtime",
+    "Shared",
+    "open-source-unity-package.contextual-menu.Runtime",
+    "open-source-unity-package.selection-zone.Runtime"
+  ]
+}

@@ -20,6 +20,9 @@
     "com.unity.modules.ui": "1.0.0",
     "com.unity.modules.uielements": "1.0.0",
     "com.unity.modules.unityanalytics": "1.0.0",
-    "open-source-unity-package.contextual-menu": "https://github.com/OpenSourceUnityPackage/ContextualMenu.git#1.3.0"
+    "open-source-unity-package.contextual-menu": "https://github.com/OpenSourceUnityPackage/ContextualMenu.git#1.3.0",
+    "com.unity.multiplayer.tools": "1.0.0-pre.2",
+    "com.unity.netcode.gameobjects": "1.0.0-pre.5",
+    "com.veriorpies.parrelsync": "https://github.com/VeriorPies/ParrelSync.git?path=/ParrelSync#1.5.1"
   }
 }

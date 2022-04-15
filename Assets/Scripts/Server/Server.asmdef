@@ -1,0 +1,7 @@
+{
+  "name": "Server",
+  "references": [
+    "Shared",
+    "Unity.Netcode.Runtime"
+  ]
+}
