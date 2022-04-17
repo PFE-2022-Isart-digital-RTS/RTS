@@ -5,6 +5,7 @@ using UnityEngine;
 /// Warning ! Singleton ise not DontDestroyOnLoad.
 /// </summary>
 /// <typeparam name="T"></typeparam>
+[RequireComponent(typeof(NetworkObject))]
 public class SingletonNetworkBehaviour<T> : NetworkBehaviour
     where T : Component
 {
@@ -29,8 +30,15 @@ public class SingletonNetworkBehaviour<T> : NetworkBehaviour
 
                 if (m_Instance == null)
                 {
-                    GameObject newObj = new GameObject(typeof(T).Name);
-                    m_Instance = newObj.AddComponent<T>();
+                    if (!NetworkManager.Singleton.IsHost)
+                    {
+                        GameObject newObj = new GameObject(typeof(T).Name);
+                        m_Instance = newObj.AddComponent<T>();
+                    }
+                    else
+                    {
+                        Debug.LogError($"The client tries to get {typeof(T).Name} , but it hasn't been instantiated on the server yet.");
+                    }
                 }
             }
 

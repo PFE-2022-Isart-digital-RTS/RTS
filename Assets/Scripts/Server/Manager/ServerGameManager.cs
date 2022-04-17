@@ -15,6 +15,8 @@ public class ServerGameManager : SingletonMonoBehaviour<ServerGameManager>
         {
             m_teamsUnits[index] = new List<Entity>();
         }
+
+        PlayerManager pm = PlayerManager.Instance;
     }
 
     /// <summary>
