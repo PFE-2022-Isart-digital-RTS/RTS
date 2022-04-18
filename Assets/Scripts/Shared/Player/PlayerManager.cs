@@ -6,7 +6,6 @@ using UnityEngine;
 public class PlayerManager : SingletonNetworkBehaviour<PlayerManager>
 {
     private readonly NetworkVariable<int> m_playerCount = new NetworkVariable<int>();
-    [SerializeReference] ScriptableObject moveToInstructionGenerator;
 
     public int PlayerCount => m_playerCount.Value;
 
@@ -60,7 +59,8 @@ public class PlayerManager : SingletonNetworkBehaviour<PlayerManager>
                 Vector3 offset = new Vector3(r * Distance, 0f, c * Distance);
                 Vector3 pos = targetPosition + offset - OffsetFromStart;
                 //entity.MoveTo(pos);
-                Instruction moveInstruction = ((IMoveInstructionGenerator) moveToInstructionGenerator).GenerateInstruction(moveComponent, pos);
+                Instruction moveInstruction = new MoveInstruction { moveComponent = moveComponent, targetLocation = pos }; 
+                // to modify, the instruction should be added to the HaveInstruction component
                 moveComponent.moveInstruction = moveInstruction;
             }
         }

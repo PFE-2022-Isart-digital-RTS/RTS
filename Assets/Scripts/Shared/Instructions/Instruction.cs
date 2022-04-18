@@ -2,11 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public interface IMoveInstructionGenerator
-{ 
-    Instruction GenerateInstruction(MoveComponent moveComponent, Vector3 targetLocation);
-}
-
 // Should Instruction become a MonoBehaviour ?
 public abstract class Instruction
 {
