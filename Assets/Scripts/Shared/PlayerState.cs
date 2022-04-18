@@ -6,4 +6,6 @@ using UnityEngine;
 public class PlayerState : MonoBehaviour
 {
     public TeamData team;
+
+
 }

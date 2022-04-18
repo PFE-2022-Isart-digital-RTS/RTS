@@ -42,7 +42,6 @@ public class ConstructInstruction : Instruction
         {
             moveComponent.Stop();
         }
-        //entityToConstruct.
     }
 
     public override void OnUpdate()
