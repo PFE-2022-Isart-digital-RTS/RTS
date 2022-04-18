@@ -14,4 +14,15 @@ public class PlayerController : MonoBehaviour
     // List<ICanBeSelected> selectedEntities;
 
     // TODO : UI
+
+
+    //void OnEntitySpawned(Entity newEntity)
+    //{
+    //    var m = newEntity.GetComponent<LifeComponent>();
+    //    if (m != null)
+    //    {
+    //        HealthBar health = Instantiate(HealthBar3D, m.transform);
+    //        health.life = m.lifeRatio;
+    //    }
+    //}
 }
