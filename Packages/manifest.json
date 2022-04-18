@@ -24,6 +24,7 @@
     "com.unity.modules.terrainphysics": "1.0.0",
     "com.unity.modules.ui": "1.0.0",
     "com.unity.modules.uielements": "1.0.0",
-    "com.unity.modules.unityanalytics": "1.0.0"
+    "com.unity.modules.unityanalytics": "1.0.0",
+    "com.mischief.markdownviewer": "https://github.com/gwaredd/UnityMarkdownViewer.git#v1.0.7"
   }
 }
