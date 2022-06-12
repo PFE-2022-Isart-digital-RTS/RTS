@@ -54,6 +54,68 @@ public class RTSGameMode : MonoBehaviour
     }
 
 
+    // Start is called before the first frame update
+    void OnEnable()
+    {
+        if (!NetworkManager.Singleton.IsServer)
+            return;
+
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnect;
+        NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
+    }
+
+    void OnDisable()
+    {
+        if (!NetworkManager.Singleton.IsServer)
+            return;
+
+        NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnect;
+        NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
+    }
+
+    void OnClientConnect(ulong clientID)
+    {
+        Debug.Log($"Client {clientID} connected");
+
+        RTSSpectatorState spectatorState = Instantiate(spectatorStatePrefab, transform).GetComponent<RTSSpectatorState>();
+        {
+            spectatorState.gameObject.name = "SpectatorState " + clientID;
+            spectatorState.client = NetworkManager.Singleton.ConnectedClients[clientID];
+            gameState.spectatorStates.Add(spectatorState);
+
+            NetworkObject pStateNetwork = spectatorState.GetComponent<NetworkObject>();
+            pStateNetwork.SpawnWithOwnership(spectatorState.client.ClientId);
+        }
+
+        // PlayerController
+        RTSSpectatorController spectatorController = Instantiate(spectatorControllerPrefab, transform).GetComponent<RTSSpectatorController>();
+        {
+            spectatorController.gameObject.name = "PlayerController " + clientID;
+
+            NetworkObject pControllerNetwork = spectatorController.GetComponent<NetworkObject>();
+            pControllerNetwork.SpawnWithOwnership(spectatorState.client.ClientId);
+
+            ClientRpcParams clientRpcParams = new ClientRpcParams
+            {
+                Send = new ClientRpcSendParams
+                {
+                    TargetClientIds = new ulong[] { spectatorState.client.ClientId }
+                }
+            };
+            spectatorController.SetLocalInstance_ClientRpc(clientRpcParams);
+
+            spectatorControllers.Add(spectatorController);
+        }
+    }
+
+    void OnClientDisconnect(ulong clientID)
+    {
+        Debug.Log($"Client {clientID} disconnected");
+
+        spectatorControllers.RemoveAll((RTSSpectatorController specController) => specController.PlayerState.client.ClientId == clientID);
+        gameState.spectatorStates.RemoveAll((RTSSpectatorState specState) => specState.client.ClientId == clientID);
+    }
+
     public void StartGame(RTSGameStartData gameStartData)
     {
         // GameState
@@ -80,7 +142,7 @@ public class RTSGameMode : MonoBehaviour
             // PlayerState
             RTSPlayerState playerState = Instantiate(playerStatePrefab, transform).GetComponent<RTSPlayerState>();
             {
-                playerState.gameObject.name = "PlayerState " + i;
+                playerState.gameObject.name = "PlayerState " + playerStartData.client.ClientId;
                 playerState.client = playerStartData.client;
                 playerState.team = teams[playerStartData.teamID];
                 gameState.playerStates.Add(playerState);
@@ -92,7 +154,7 @@ public class RTSGameMode : MonoBehaviour
             // PlayerController
             RTSPlayerController playerController = Instantiate(playerControllerPrefab, transform).GetComponent<RTSPlayerController>();
             {
-                playerController.gameObject.name = "PlayerController " + i;
+                playerController.gameObject.name = "PlayerController " + playerStartData.client.ClientId;
 
                 NetworkObject pControllerNetwork = playerController.GetComponent<NetworkObject>();
                 pControllerNetwork.SpawnWithOwnership(playerState.client.ClientId);
@@ -104,7 +166,7 @@ public class RTSGameMode : MonoBehaviour
                         TargetClientIds = new ulong[] { playerState.client.ClientId }
                     }
                 };
-                playerController.SetLocalInstance(playerController, clientRpcParams);
+                playerController.SetLocalInstance_ClientRpc(clientRpcParams);
 
                 playerControllers.Add(playerController);
             }

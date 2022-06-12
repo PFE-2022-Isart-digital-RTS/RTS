@@ -33,7 +33,7 @@ public class MoveContext : ITask<Entity>
         //OffsetFromStart = new Vector3(NumberOfCharactersRow * Distance / 2f, 0f,
         //    NumberOfCharactersColumn * Distance / 2f);
 
-        PlayerManager.Instance.TryMoveToServerRPC(m_targets, position);
+        RTSPlayerController.LocalInstance.TryMoveToServerRPC(m_targets, position);
 
         //// TODO : Pack
         //for (int i = 0; i < unitCount; i++)

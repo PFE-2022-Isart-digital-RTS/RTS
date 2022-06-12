@@ -4,7 +4,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 [RequireComponent(typeof(NetworkObject))]
-public class PlayerState : MonoBehaviour
+public class PlayerState : NetworkBehaviour
 {
     public NetworkClient client;
 
