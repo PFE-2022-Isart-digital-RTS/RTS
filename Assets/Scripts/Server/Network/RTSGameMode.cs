@@ -20,6 +20,9 @@ public class RTSGameMode : MonoBehaviour
     [SerializeField]
     GameObject spectatorControllerPrefab;
 
+    [SerializeField, Header("Team")]
+    GameObject teamStatePrefab;
+
 
     [HideInInspector]
     public List<RTSPlayerController> playerControllers = new List<RTSPlayerController>();
@@ -58,7 +61,16 @@ public class RTSGameMode : MonoBehaviour
 
         for (int i = 0; i < gameStartData.nbTeams; i++)
         {
-            teams.Add(new TeamState());
+            // TeamState
+            TeamState teamState = Instantiate(teamStatePrefab, transform).GetComponent<TeamState>();
+            {
+                teamState.gameObject.name = "TeamState " + i;
+
+                NetworkObject teamStateNetwork = teamState.GetComponent<NetworkObject>();
+                teamStateNetwork.Spawn();
+
+                teams.Add(teamState);
+            }
         }
 
         for (int i = 0; i < gameStartData.playersStartData.Count; i++)
@@ -66,22 +78,36 @@ public class RTSGameMode : MonoBehaviour
             RTSPlayerStartData playerStartData = gameStartData.playersStartData[i];
 
             // PlayerState
-            RTSPlayerState playerState = Instantiate(playerStatePrefab).GetComponent<RTSPlayerState>();
-            playerState.client = playerStartData.client;
-            playerState.team = teams[playerStartData.teamID];
-            gameState.playerStates.Add(playerState);
+            RTSPlayerState playerState = Instantiate(playerStatePrefab, transform).GetComponent<RTSPlayerState>();
+            {
+                playerState.gameObject.name = "PlayerState " + i;
+                playerState.client = playerStartData.client;
+                playerState.team = teams[playerStartData.teamID];
+                gameState.playerStates.Add(playerState);
+
+                NetworkObject pStateNetwork = playerState.GetComponent<NetworkObject>();
+                pStateNetwork.SpawnWithOwnership(playerState.client.ClientId);
+            }
 
             // PlayerController
-            RTSPlayerController playerController = Instantiate(playerControllerPrefab).GetComponent<RTSPlayerController>();
-            ClientRpcParams clientRpcParams = new ClientRpcParams
+            RTSPlayerController playerController = Instantiate(playerControllerPrefab, transform).GetComponent<RTSPlayerController>();
             {
-                Send = new ClientRpcSendParams
+                playerController.gameObject.name = "PlayerController " + i;
+
+                NetworkObject pControllerNetwork = playerController.GetComponent<NetworkObject>();
+                pControllerNetwork.SpawnWithOwnership(playerState.client.ClientId);
+
+                ClientRpcParams clientRpcParams = new ClientRpcParams
                 {
-                    TargetClientIds = new ulong[] { playerState.client.ClientId }
-                }
-            };
-            playerController.SetLocalInstance(playerController, clientRpcParams);
-            playerControllers.Add(playerController);
+                    Send = new ClientRpcSendParams
+                    {
+                        TargetClientIds = new ulong[] { playerState.client.ClientId }
+                    }
+                };
+                playerController.SetLocalInstance(playerController, clientRpcParams);
+
+                playerControllers.Add(playerController);
+            }
         }
     }
 }

@@ -5,14 +5,14 @@ using UnityEngine;
 // Contains server data that is team specific
 public class TeamState : MonoBehaviour
 {
-    public List<RTSPlayerState> playersInTheTeam;
+    //public List<RTSPlayerState> playersInTheTeam;
 
     // Resources
-    float nbGolds;
-    float nbSupplies;
+    public float nbGolds;
+    public float nbSupplies;
 
-    // Buildings and units that the team owns
-    List<GameObject> entities;
+    //// Buildings and units that the team owns
+    //List<GameObject> entities;
 
 
     // Called when the team loses

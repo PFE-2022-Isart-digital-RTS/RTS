@@ -456,6 +456,59 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1795015432
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1795015434}
+  - component: {fileID: 1795015433}
+  m_Layer: 0
+  m_Name: RTSGameMode
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1795015433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1795015432}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b8f89fe514a4a344b4ef3134461a8a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  gameStatePrefab: {fileID: 3917758207629260501, guid: 0a6c102a6b18d794cbeb0672eadbbb96, type: 3}
+  playerStatePrefab: {fileID: 8267502319050431933, guid: 8efb085658ce7e245aea1982adaa609e, type: 3}
+  playerControllerPrefab: {fileID: 6325299922335858717, guid: 4d871953ba09b19499da1e977ac51e67, type: 3}
+  spectatorStatePrefab: {fileID: 8253671609652380578, guid: 8677abc3a7c098e48a105427fe9be247, type: 3}
+  spectatorControllerPrefab: {fileID: 2589325478830229638, guid: fbbde7dbffad612448bf4ddcf19a36f4, type: 3}
+  teamStatePrefab: {fileID: 4071146438717243278, guid: 97343f0d9372c4145afeebd1ec2fb6b7, type: 3}
+  playerControllers: []
+  spectatorControllers: []
+  teams: []
+  gameState: {fileID: 0}
+--- !u!4 &1795015434
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1795015432}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -8.682546, y: 100.33763, z: -82.23769}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1805325496
 GameObject:
   m_ObjectHideFlags: 0
@@ -516,7 +569,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97fb8f6d82ed11249a2b719b5068acd0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveToInstructionGenerator: {fileID: 11400000, guid: 17d01433fe082e543b9737d3a124576f, type: 2}
 --- !u!1001 &2005209347
 PrefabInstance:
   m_ObjectHideFlags: 0

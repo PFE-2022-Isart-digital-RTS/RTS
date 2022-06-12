@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
+[RequireComponent(typeof(NetworkObject))]
 public class PlayerState : MonoBehaviour
 {
     public NetworkClient client;
@@ -10,18 +11,3 @@ public class PlayerState : MonoBehaviour
 
 }
 
-
-// Contains server data that is player specific
-public class RTSPlayerState : PlayerState
-{
-    public TeamState team;
-
-
-}
-
-public class RTSSpectatorState : PlayerState
-{
-
-
-
-}

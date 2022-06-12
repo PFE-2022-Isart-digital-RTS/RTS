@@ -35,11 +35,3 @@ public class RTSPlayerController : MonoBehaviour
     //    }
     //}
 }
-
-public class RTSSpectatorController : MonoBehaviour
-{
-    [HideInInspector]
-    public RTSSpectatorState playerState;
-
-
-}

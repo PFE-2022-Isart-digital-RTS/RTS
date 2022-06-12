@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class RTSGameState : MonoBehaviour
 {
+    [HideInInspector]
     public List<RTSPlayerState> playerStates;
 
 
