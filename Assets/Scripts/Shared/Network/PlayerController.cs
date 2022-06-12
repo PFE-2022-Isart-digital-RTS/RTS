@@ -1,15 +1,24 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 // TODO : Link each PlayerController to the PlayerState through network?
 
 // Local to each client, responsible of the ui and the selection, 
 // and sends the inputs to the server.
-public class PlayerController : MonoBehaviour
+public class RTSPlayerController : MonoBehaviour
 {
-    [SerializeField, EditInPlayModeOnly]
-    PlayerState playerState;
+    [HideInInspector]
+    public RTSPlayerState playerState;
+
+    public RTSPlayerController LocalInstance { get; private set; }
+
+    [ClientRpc()]
+    public void SetLocalInstance(RTSPlayerController newInstance, ClientRpcParams clientRpcParams = default)
+    {
+        LocalInstance = newInstance;
+    }
 
     // List<ICanBeSelected> selectedEntities;
 
@@ -25,4 +34,12 @@ public class PlayerController : MonoBehaviour
     //        health.life = m.lifeRatio;
     //    }
     //}
+}
+
+public class RTSSpectatorController : MonoBehaviour
+{
+    [HideInInspector]
+    public RTSSpectatorState playerState;
+
+
 }

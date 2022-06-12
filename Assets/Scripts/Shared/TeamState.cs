@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // Contains server data that is team specific
-public class TeamData : MonoBehaviour
+public class TeamState : MonoBehaviour
 {
-    public List<PlayerState> playersInTheTeam;
+    public List<RTSPlayerState> playersInTheTeam;
 
     // Resources
     float nbGolds;

@@ -17,11 +17,7 @@ public class Lobby : MonoBehaviour
     void Start()
     {
         loadSceneButton.enabled = false;
-        loadSceneButton.onClick.AddListener(() =>
-        {
-            NetworkManager.Singleton.SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
-            NetworkManager.Singleton.SceneManager.OnLoadComplete += LoadMap;
-        });
+        loadSceneButton.onClick.AddListener(LoadGameScene);
         hostButton.onClick.AddListener(() =>
         {
             Debug.Log("StartHost success");
@@ -68,10 +64,42 @@ public class Lobby : MonoBehaviour
             NetworkManager.Singleton.GetComponent<UNetTransport>().ConnectAddress = ipAdress;
         });
     }
+
+    void LoadGameScene()
+    {
+        NetworkManager.Singleton.SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.OnLoadComplete += LoadAdditiveScene;
+    }
     
-    void LoadMap(ulong id,string sceneName, LoadSceneMode mode)
+    void LoadAdditiveScene(ulong id,string sceneName, LoadSceneMode mode)
     {
         NetworkManager.Singleton.SceneManager.LoadScene("Map", LoadSceneMode.Additive);
-        NetworkManager.Singleton.SceneManager.OnLoadComplete -= LoadMap;
+        NetworkManager.Singleton.SceneManager.OnLoadComplete -= LoadAdditiveScene;
+        NetworkManager.Singleton.SceneManager.OnLoadComplete += StartGame;
+    }
+
+    void StartGame(ulong id, string sceneName, LoadSceneMode mode)
+    {
+        NetworkManager.Singleton.SceneManager.OnLoadComplete -= StartGame;
+        RTSGameMode gameMode = GameObject.FindObjectOfType<RTSGameMode>();
+        if (gameMode)
+        {
+            RTSGameMode.RTSGameStartData gameStartData = new RTSGameMode.RTSGameStartData();
+            int teamID = 0;
+            foreach (NetworkClient client in NetworkManager.Singleton.ConnectedClientsList)
+            {
+                gameStartData.playersStartData.Add(new RTSGameMode.RTSPlayerStartData
+                {
+                    client = client,
+                    teamID = teamID
+                });
+                teamID++;
+            }
+            gameMode.StartGame(gameStartData);
+        }
+        else
+        {
+            Debug.LogWarning("No GameMode has been found");
+        }
     }
 }
