@@ -120,6 +120,7 @@ public class RTSGameMode : NetworkBehaviour
         // GameState
         gameState = Instantiate(gameStatePrefab).GetComponent<RTSGameState>();
         gameState.GetComponent<NetworkObject>().Spawn();
+        gameState.teams = teams;
 
 
         //for (int i = 0; i < gameStartData.nbTeams; i++)
