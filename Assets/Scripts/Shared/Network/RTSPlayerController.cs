@@ -1,7 +1,12 @@
+using ContextualMenuPackage;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnitSelectionPackage;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 // TODO : Link each PlayerController to the PlayerState through network?
 
@@ -61,4 +66,134 @@ public class RTSPlayerController : PlayerController
     //        health.life = m.lifeRatio;
     //    }
     //}
+
+
+    private SharedContextualMenu<Entity> m_contextualMenu = new SharedContextualMenu<Entity>();
+
+    public Camera mainCamera;
+    private UnitSelection<Entity> m_unitSelection = new UnitSelection<Entity>();
+    private bool m_isSelecting;
+    public EventSystem m_eventSystem;
+    private int m_layerGround;
+
+    public Toggle btnMove;
+    public Button btnStop;
+
+    public Action<Vector3> RequestPosition { get; set; }
+
+
+    #region MonoBehaviour
+
+    private void Awake()
+    {
+        if (!NetworkManager.IsClient)
+            return;
+
+        //SharedGameManager.Instance.onRegisterEntity += RegisterEntity;
+        //SharedGameManager.Instance.onUnregisterEntity += UnregisterEntity;
+
+        m_layerGround = 1 << LayerMask.NameToLayer("Floor");
+
+        btnMove.onValueChanged.AddListener(delegate
+        {
+            m_contextualMenu.InvokeTask("Move");
+        });
+
+        btnStop.onClick.AddListener(delegate
+        {
+            m_contextualMenu.InvokeTask("Stop");
+        });
+
+        m_contextualMenu.AddTask("Move", new MoveContext());
+        m_contextualMenu.AddTask("Stop", new Stop());
+    }
+
+    private void OnEnable()
+    {
+        if (!NetworkManager.IsClient)
+            return;
+
+        m_unitSelection.SetObserver(PlayerState.Team.Units);
+
+        m_unitSelection.OnSelection += selected =>
+        {
+            m_contextualMenu.SetContextualizable(selected);
+
+            btnMove.gameObject.SetActive(false);
+            btnMove.isOn = false;
+
+            btnStop.gameObject.SetActive(false);
+
+            foreach (string task in m_contextualMenu.GetTasks())
+            {
+                switch (task)
+                {
+                    case "Move":
+                        btnMove.gameObject.SetActive(true);
+                        break;
+                    case "Stop":
+                        btnStop.gameObject.SetActive(true);
+                        break;
+                }
+            }
+        };
+    }
+
+    private void Update()
+    {
+        if (!NetworkManager.IsClient)
+            return;
+
+        if (m_eventSystem != null)
+        {
+            // On click on world
+            bool isPointerOverGameObject = m_eventSystem.IsPointerOverGameObject();
+
+            if (Input.GetMouseButtonDown(1) && !isPointerOverGameObject)
+            {
+                if (RequestPosition != null)
+                {
+                    RaycastHit hit;
+                    // Does the ray intersect any objects excluding the player layer
+                    if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity,
+                        m_layerGround))
+                    {
+                        RequestPosition.Invoke(hit.point);
+                    }
+                }
+            }
+
+            if (Input.GetMouseButtonDown(0) && !isPointerOverGameObject)
+            {
+                if (!m_isSelecting)
+                {
+                    m_unitSelection.SetObserver(PlayerState.Team.Units);
+                    m_unitSelection.OnSelectionBegin(Input.mousePosition);
+                    m_isSelecting = true;
+                }
+            }
+
+            if (m_isSelecting)
+            {
+                m_unitSelection.OnSelectionProcess(mainCamera, Input.mousePosition);
+            }
+
+            if (Input.GetMouseButtonUp(0) && !isPointerOverGameObject)
+            {
+                RequestPosition = null;
+                m_unitSelection.OnSelectionEnd();
+                m_isSelecting = false;
+            }
+        }
+    }
+
+    private void OnGUI()
+    {
+        if (m_isSelecting)
+        {
+            m_unitSelection.DrawGUI(Input.mousePosition);
+        }
+    }
+
+    #endregion
 }

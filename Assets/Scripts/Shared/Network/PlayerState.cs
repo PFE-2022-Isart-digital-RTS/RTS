@@ -8,6 +8,10 @@ public class PlayerState : NetworkBehaviour
 {
     public NetworkClient client;
 
-
+    [ClientRpc]
+    public void SetEnable_ClientRpc(bool isEnabled)
+    {
+        enabled = isEnabled;
+    }
 }
 

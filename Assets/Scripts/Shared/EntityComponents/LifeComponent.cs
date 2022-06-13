@@ -53,7 +53,9 @@ public class LifeComponent : NetworkBehaviour, ICanBeAttacked
             {
                 progressBar.value = lifeRatio;
             };
-            progressBarGO.transform.LookAt(Camera.main.transform.position, Camera.main.transform.up);
+
+            if (Camera.main != null) 
+                progressBarGO.transform.LookAt(Camera.main.transform.position, Camera.main.transform.up);
         }
     }
 

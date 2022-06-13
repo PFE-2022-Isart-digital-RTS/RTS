@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class RTSGameMode : MonoBehaviour
+public class RTSGameMode : NetworkBehaviour
 {
     [SerializeField, Header("Game")]
     GameObject gameStatePrefab;
@@ -28,7 +28,6 @@ public class RTSGameMode : MonoBehaviour
     public List<RTSPlayerController> playerControllers = new List<RTSPlayerController>();
     [HideInInspector]
     public List<RTSSpectatorController> spectatorControllers = new List<RTSSpectatorController>();
-    [HideInInspector]
     public List<TeamState> teams;
 
     [HideInInspector]
@@ -66,7 +65,7 @@ public class RTSGameMode : MonoBehaviour
 
     void OnDisable()
     {
-        if (!NetworkManager.Singleton.IsServer)
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer)
             return;
 
         NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnect;
@@ -77,7 +76,7 @@ public class RTSGameMode : MonoBehaviour
     {
         Debug.Log($"Client {clientID} connected");
 
-        RTSSpectatorState spectatorState = Instantiate(spectatorStatePrefab, transform).GetComponent<RTSSpectatorState>();
+        RTSSpectatorState spectatorState = Instantiate(spectatorStatePrefab).GetComponent<RTSSpectatorState>();
         {
             spectatorState.gameObject.name = "SpectatorState " + clientID;
             spectatorState.client = NetworkManager.Singleton.ConnectedClients[clientID];
@@ -88,7 +87,7 @@ public class RTSGameMode : MonoBehaviour
         }
 
         // PlayerController
-        RTSSpectatorController spectatorController = Instantiate(spectatorControllerPrefab, transform).GetComponent<RTSSpectatorController>();
+        RTSSpectatorController spectatorController = Instantiate(spectatorControllerPrefab).GetComponent<RTSSpectatorController>();
         {
             spectatorController.gameObject.name = "PlayerController " + clientID;
 
@@ -102,7 +101,7 @@ public class RTSGameMode : MonoBehaviour
                     TargetClientIds = new ulong[] { spectatorState.client.ClientId }
                 }
             };
-            spectatorController.SetLocalInstance_ClientRpc(clientRpcParams);
+            spectatorController.SetLocalInstance_ClientRpc(spectatorState, clientRpcParams);
 
             spectatorControllers.Add(spectatorController);
         }
@@ -120,31 +119,33 @@ public class RTSGameMode : MonoBehaviour
     {
         // GameState
         gameState = Instantiate(gameStatePrefab).GetComponent<RTSGameState>();
+        gameState.GetComponent<NetworkObject>().Spawn();
 
-        for (int i = 0; i < gameStartData.nbTeams; i++)
-        {
-            // TeamState
-            TeamState teamState = Instantiate(teamStatePrefab, transform).GetComponent<TeamState>();
-            {
-                teamState.gameObject.name = "TeamState " + i;
 
-                NetworkObject teamStateNetwork = teamState.GetComponent<NetworkObject>();
-                teamStateNetwork.Spawn();
+        //for (int i = 0; i < gameStartData.nbTeams; i++)
+        //{
+        //    // TeamState
+        //    TeamState teamState = Instantiate(teamStatePrefab).GetComponent<TeamState>();
+        //    {
+        //        teamState.gameObject.name = "TeamState " + i;
 
-                teams.Add(teamState);
-            }
-        }
+        //        NetworkObject teamStateNetwork = teamState.GetComponent<NetworkObject>();
+        //        teamStateNetwork.Spawn();
+
+        //        teams.Add(teamState);
+        //    }
+        //}
 
         for (int i = 0; i < gameStartData.playersStartData.Count; i++)
         {
             RTSPlayerStartData playerStartData = gameStartData.playersStartData[i];
 
             // PlayerState
-            RTSPlayerState playerState = Instantiate(playerStatePrefab, transform).GetComponent<RTSPlayerState>();
+            RTSPlayerState playerState = Instantiate(playerStatePrefab).GetComponent<RTSPlayerState>();
             {
                 playerState.gameObject.name = "PlayerState " + playerStartData.client.ClientId;
                 playerState.client = playerStartData.client;
-                playerState.team = teams[playerStartData.teamID];
+                playerState.Team = teams[playerStartData.teamID];
                 gameState.playerStates.Add(playerState);
 
                 NetworkObject pStateNetwork = playerState.GetComponent<NetworkObject>();
@@ -152,7 +153,7 @@ public class RTSGameMode : MonoBehaviour
             }
 
             // PlayerController
-            RTSPlayerController playerController = Instantiate(playerControllerPrefab, transform).GetComponent<RTSPlayerController>();
+            RTSPlayerController playerController = Instantiate(playerControllerPrefab).GetComponent<RTSPlayerController>();
             {
                 playerController.gameObject.name = "PlayerController " + playerStartData.client.ClientId;
 
@@ -166,10 +167,24 @@ public class RTSGameMode : MonoBehaviour
                         TargetClientIds = new ulong[] { playerState.client.ClientId }
                     }
                 };
-                playerController.SetLocalInstance_ClientRpc(clientRpcParams);
+                playerController.SetLocalInstance_ClientRpc(playerState, clientRpcParams);
 
                 playerControllers.Add(playerController);
             }
+        }
+
+        for (int i = 0; i < playerControllers.Count; i++)
+        {
+            gameState.playerStates[i].enabled = true;
+            gameState.playerStates[i].SetEnable_ClientRpc(true);
+            playerControllers[i].enabled = true;
+            playerControllers[i].SetEnable_ClientRpc(true);
+        }
+
+        foreach (TeamState team in teams)
+        {
+            team.enabled = true;
+            team.SetEnable_ClientRpc(true);
         }
     }
 }

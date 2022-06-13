@@ -18,7 +18,7 @@ public class MoveContext : ITask<Entity>
         }
         //m_targets = targets;
 
-        ClientGameManager.Instance.RequestPosition += OnPositionIndicate;
+        RTSPlayerController.LocalInstance.RequestPosition += OnPositionIndicate;
     }
 
     void OnPositionIndicate(Vector3 position)
