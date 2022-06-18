@@ -190,6 +190,9 @@ GameObject:
   - component: {fileID: 1803646064998642883}
   - component: {fileID: 6198982835640008788}
   - component: {fileID: 4444302557525839843}
+  - component: {fileID: 1041815327066243127}
+  - component: {fileID: 3253110474988349222}
+  - component: {fileID: 2170268023971319442}
   m_Layer: 0
   m_Name: Team1Unit
   m_TagString: Untagged
@@ -267,9 +270,46 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a783d16329da5dd42991b62715417752, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  team: 0
   actions:
   - Stop
   - Move
+  haveInstructionsComponent: {fileID: 0}
+  moveComponent: {fileID: 0}
+--- !u!114 &1041815327066243127
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9105993614704995009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d44b9cdcb832994389c6aa2aecca699, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3253110474988349222
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9105993614704995009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bc56cc455e9f8145b94bfc92a71b736, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
   speed: 2
-  distanceToReach: 0.1
+--- !u!114 &2170268023971319442
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9105993614704995009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 933c1e53b43cba445b79948f739d9ed9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  team: {fileID: 0}

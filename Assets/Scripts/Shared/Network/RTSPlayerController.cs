@@ -68,10 +68,10 @@ public class RTSPlayerController : PlayerController
     //}
 
 
-    private SharedContextualMenu<Entity> m_contextualMenu = new SharedContextualMenu<Entity>();
+    private SharedContextualMenu<HaveOptionsComponent> m_contextualMenu = new SharedContextualMenu<HaveOptionsComponent>();
 
     public Camera mainCamera;
-    private UnitSelection<Entity> m_unitSelection = new UnitSelection<Entity>();
+    private UnitSelection<HaveOptionsComponent> m_unitSelection = new UnitSelection<HaveOptionsComponent>();
     private bool m_isSelecting;
     public EventSystem m_eventSystem;
     private int m_layerGround;
@@ -166,7 +166,7 @@ public class RTSPlayerController : PlayerController
             {
                 if (!m_isSelecting)
                 {
-                    m_unitSelection.SetObserver(PlayerState.Team.Units);
+                    m_unitSelection.SetObserver(PlayerState.Team.Selectables);
                     m_unitSelection.OnSelectionBegin(Input.mousePosition);
                     m_isSelecting = true;
                 }

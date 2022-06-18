@@ -15,16 +15,19 @@ public class TeamState : NetworkBehaviour
     //// Buildings and units that the team owns
     //List<GameObject> entities;
     [SerializeField]
-    List<Entity> units = new List<Entity>();
+    List<TeamComponent> units = new List<TeamComponent>();
 
-    public List<Entity> Units { get => units; }
+    List<HaveOptionsComponent> selectables = new List<HaveOptionsComponent>();
+
+    public List<TeamComponent> Units { get => units; }
+    public List<HaveOptionsComponent> Selectables { get => selectables; }
 
     private void OnEnable()
     {
         if (!IsServer)
             return;
 
-        foreach (Entity e in GameObject.FindObjectsOfType<Entity>())
+        foreach (TeamComponent e in GameObject.FindObjectsOfType<TeamComponent>())
         {
             if (e.Team == this)
             {
@@ -38,7 +41,7 @@ public class TeamState : NetworkBehaviour
         if (!IsServer)
             return;
 
-        foreach (Entity e in GameObject.FindObjectsOfType<Entity>())
+        foreach (TeamComponent e in GameObject.FindObjectsOfType<TeamComponent>())
         {
             if (e.Team == this)
             {
@@ -47,14 +50,19 @@ public class TeamState : NetworkBehaviour
         }
     }
 
-    public void RegisterUnit(Entity unit)
+    public void RegisterUnit(TeamComponent unit)
     {
         if (!units.Contains(unit))
             units.Add(unit);
+
+        HaveOptionsComponent haveOptionsComp = unit.GetComponent<HaveOptionsComponent>();
+        if (haveOptionsComp != null && !selectables.Contains(haveOptionsComp))
+            selectables.Add(haveOptionsComp);
+        
         RegisterUnitClientRpc(unit);
     }
 
-    public void UnregisterUnit(Entity unit)
+    public void UnregisterUnit(TeamComponent unit)
     {
         units.Remove(unit);
         UnregisterUnitClientRpc(unit);
@@ -64,10 +72,14 @@ public class TeamState : NetworkBehaviour
     void RegisterUnitClientRpc(NetworkBehaviourReference unit)
     {
         if (!IsServer)
-            if (unit.TryGet(out Entity addedUnit))
+            if (unit.TryGet(out TeamComponent addedUnit))
             {
                 if (!units.Contains(addedUnit))
                     units.Add(addedUnit);
+
+                HaveOptionsComponent haveOptionsComp = addedUnit.GetComponent<HaveOptionsComponent>();
+                if (haveOptionsComp != null && !selectables.Contains(haveOptionsComp))
+                    selectables.Add(haveOptionsComp);
             }
     }
 
@@ -75,7 +87,7 @@ public class TeamState : NetworkBehaviour
     public void UnregisterUnitClientRpc(NetworkBehaviourReference unit)
     {
         if (!IsServer)
-            if (unit.TryGet(out Entity removedUnit))
+            if (unit.TryGet(out TeamComponent removedUnit))
             {
                 units.Remove(removedUnit);
             }

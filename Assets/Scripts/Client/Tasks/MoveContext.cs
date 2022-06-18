@@ -3,12 +3,12 @@ using ContextualMenuPackage;
 using Unity.Netcode;
 using UnityEngine;
 
-public class MoveContext : ITask<Entity>
+public class MoveContext : ITask<HaveOptionsComponent>
 {
     //private List<Entity> m_targets; // ref
     private NetworkBehaviourReference[] m_targets;
 
-    public void OnInvoked(List<Entity> targets)
+    public void OnInvoked(List<HaveOptionsComponent> targets)
     {
         int length = targets.Count;
         m_targets = new NetworkBehaviourReference[length];

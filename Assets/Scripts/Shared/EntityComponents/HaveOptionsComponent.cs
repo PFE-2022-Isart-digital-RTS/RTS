@@ -7,33 +7,10 @@ using UnityEditor;
 using UnityEngine;
 
 [RequireComponent(typeof(HaveInstructions), typeof(MoveComponent))]
-public class Entity : NetworkBehaviour, ISelectable, IContextualizable
+public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualizable
 {
     private bool m_isSelected = false;
     private Material m_material;
-    //public ETeam team;
-
-    public TeamState team;
-
-    [HideInInspector]
-    public TeamState Team
-    {
-        set
-        {
-            if (team == value)
-                return;
-
-            if (team != null)
-                team.UnregisterUnit(this);
-
-            team = value;
-
-            if (team != null)
-                team.RegisterUnit(this);
-        }
-        get => team;
-    }
-
 
     private Color m_baseColor;
 
@@ -132,49 +109,5 @@ public class Entity : NetworkBehaviour, ISelectable, IContextualizable
     //    MoveTo(pos);
     //}
 
-    [ClientRpc]
-    public void SetTeam_ClientRpc(NetworkBehaviourReference newTeamRef)
-    {
-        if (newTeamRef.TryGet(out TeamState newTeam))
-        {
-            Team = newTeam;
-        }
-    }
 }
 
-
-
-
-[CustomEditor(typeof(Entity))]
-public class EntityEditor : Editor
-{
-    public override void OnInspectorGUI()
-    {
-        Entity entity = (Entity) target;
-
-        // Get value before change
-        TeamState previousValue = entity.Team;
-
-        // Make all the public and serialized fields visible in Inspector
-        base.OnInspectorGUI();
-
-        // Load changed values
-        serializedObject.Update();
-
-        TeamState newValue = ((Entity)serializedObject.targetObject).Team;
-
-        // Check if value has changed
-        if (Application.isPlaying && previousValue != newValue)
-        {
-            if (previousValue != null)
-                previousValue.UnregisterUnit(entity);
-
-            if (newValue != null)
-                newValue.RegisterUnit(entity);
-
-            entity.SetTeam_ClientRpc(newValue);
-        }
-
-        serializedObject.ApplyModifiedProperties();
-    }
-}
