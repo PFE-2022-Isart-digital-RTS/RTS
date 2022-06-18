@@ -101,7 +101,8 @@ public class RTSGameMode : NetworkBehaviour
                     TargetClientIds = new ulong[] { spectatorState.client.ClientId }
                 }
             };
-            spectatorController.SetLocalInstance_ClientRpc(spectatorState, clientRpcParams);
+            spectatorController.PlayerState = spectatorState;
+            spectatorController.SetLocalInstance_ClientRpc(clientRpcParams);
 
             spectatorControllers.Add(spectatorController);
         }
@@ -168,7 +169,8 @@ public class RTSGameMode : NetworkBehaviour
                         TargetClientIds = new ulong[] { playerState.client.ClientId }
                     }
                 };
-                playerController.SetLocalInstance_ClientRpc(playerState, clientRpcParams);
+                playerController.PlayerState = playerState;
+                playerController.SetLocalInstance_ClientRpc(clientRpcParams);
 
                 playerControllers.Add(playerController);
             }
@@ -178,8 +180,7 @@ public class RTSGameMode : NetworkBehaviour
         {
             gameState.playerStates[i].enabled = true;
             gameState.playerStates[i].SetEnable_ClientRpc(true);
-            playerControllers[i].enabled = true;
-            playerControllers[i].SetEnable_ClientRpc(true);
+            playerControllers[i].SetEnable(true);
         }
 
         foreach (TeamState team in teams)

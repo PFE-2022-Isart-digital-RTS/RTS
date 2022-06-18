@@ -5,22 +5,33 @@ using UnityEngine;
 
 public class PlayerController : NetworkBehaviour
 {
-    public PlayerState PlayerState { get; set; }
+    NetworkVariable<NetworkBehaviourReference> playerStateRef = new NetworkVariable<NetworkBehaviourReference>();
+
+    public PlayerState PlayerState { get => (PlayerState) playerStateRef.Value; set => playerStateRef.Value = value; }
     public static PlayerController LocalInstance { get; private set; }
 
     [ClientRpc()]
-    public void SetLocalInstance_ClientRpc(NetworkBehaviourReference pStateRef, ClientRpcParams clientRpcParams = default)
+    public void SetLocalInstance_ClientRpc(ClientRpcParams clientRpcParams = default)
     {
-        if (pStateRef.TryGet(out PlayerState pState))
-        {
-            PlayerState = pState;
-        }
         LocalInstance = this;
     }
-    
-    [ClientRpc]
-    public void SetEnable_ClientRpc(bool isEnabled)
+
+    public void SetEnable(bool isEnabled, ClientRpcParams clientRpcParams = default)
     {
-        enabled = isEnabled;
+        if (IsOwner)
+            enabled = isEnabled;
+        else
+            gameObject.SetActive(false);
+
+        SetEnable_ClientRpc(isEnabled, clientRpcParams);
+    }
+
+    [ClientRpc]
+    private void SetEnable_ClientRpc(bool isEnabled, ClientRpcParams clientRpcParams = default)
+    {
+        if (IsOwner)
+            enabled = isEnabled;
+        else
+            gameObject.SetActive(false);
     }
 }

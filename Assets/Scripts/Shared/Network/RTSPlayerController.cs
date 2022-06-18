@@ -86,8 +86,9 @@ public class RTSPlayerController : PlayerController
 
     private void Awake()
     {
-        if (!NetworkManager.IsClient)
-            return;
+        //if (!IsOwner)
+        //if (LocalInstance != this) // Is Owner not working
+        //    return;
 
         //SharedGameManager.Instance.onRegisterEntity += RegisterEntity;
         //SharedGameManager.Instance.onUnregisterEntity += UnregisterEntity;
@@ -110,10 +111,8 @@ public class RTSPlayerController : PlayerController
 
     private void OnEnable()
     {
-        if (!NetworkManager.IsClient)
+        if (!IsOwner)
             return;
-
-        m_unitSelection.SetObserver(PlayerState.Team.Units);
 
         m_unitSelection.OnSelection += selected =>
         {
@@ -141,7 +140,7 @@ public class RTSPlayerController : PlayerController
 
     private void Update()
     {
-        if (!NetworkManager.IsClient)
+        if (!IsOwner)
             return;
 
         if (m_eventSystem != null)

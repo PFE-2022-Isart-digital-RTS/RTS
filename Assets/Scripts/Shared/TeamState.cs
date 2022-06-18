@@ -14,6 +14,7 @@ public class TeamState : NetworkBehaviour
 
     //// Buildings and units that the team owns
     //List<GameObject> entities;
+    [SerializeField]
     List<Entity> units = new List<Entity>();
 
     public List<Entity> Units { get => units; }
@@ -48,16 +49,14 @@ public class TeamState : NetworkBehaviour
 
     public void RegisterUnit(Entity unit)
     {
-        unit.Team = this;
-        units.Add(unit);
+        if (!units.Contains(unit))
+            units.Add(unit);
         RegisterUnitClientRpc(unit);
     }
 
     public void UnregisterUnit(Entity unit)
     {
-        if (unit == this)
-            unit.Team = null;
-        units.Add(unit);
+        units.Remove(unit);
         UnregisterUnitClientRpc(unit);
     }
 
@@ -67,8 +66,8 @@ public class TeamState : NetworkBehaviour
         if (!IsServer)
             if (unit.TryGet(out Entity addedUnit))
             {
-                addedUnit.Team = this;
-                units.Add(addedUnit);
+                if (!units.Contains(addedUnit))
+                    units.Add(addedUnit);
             }
     }
 
@@ -78,8 +77,6 @@ public class TeamState : NetworkBehaviour
         if (!IsServer)
             if (unit.TryGet(out Entity removedUnit))
             {
-                if (removedUnit == this)
-                    removedUnit.Team = null;
                 units.Remove(removedUnit);
             }
     }
