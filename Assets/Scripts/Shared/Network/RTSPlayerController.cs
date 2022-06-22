@@ -17,6 +17,8 @@ public class RTSPlayerController : PlayerController
     public new RTSPlayerState PlayerState { get => (RTSPlayerState) base.PlayerState; set => base.PlayerState = value; }
     public static new RTSPlayerController LocalInstance { get => (RTSPlayerController)PlayerController.LocalInstance; }
 
+    List<Squad> squads = new List<Squad>();
+
     // TODO : Set ownership ?
     // However, if two players are in the same team and they can move each other's units,
     // then ownership should be false and team should be checked
@@ -25,6 +27,19 @@ public class RTSPlayerController : PlayerController
     {
         // TODO : verify if the call is correct, depending on the client id calling this function
         //ulong playerID = serverRpcParams.Receive.SenderClientId;
+
+        List<MoveComponent> units = new List<MoveComponent>();
+        foreach (NetworkBehaviourReference unitRef in moveComponents)
+        {
+            if (unitRef.TryGet(out MoveComponent moveComp))
+            {
+                TeamComponent team = moveComp.GetComponent<TeamComponent>();
+                if (team != null && team.team == PlayerState.Team)
+                    units.Add(moveComp);
+            }
+        }
+
+        squads.Add(new Squad { squadUnits = units });
 
         Vector3 OffsetFromStart;
         int unitCount = moveComponents.Length;
