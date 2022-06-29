@@ -1,3 +1,4 @@
+using FogOfWarPackage;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UNET;
 using UnityEngine;
@@ -67,13 +68,13 @@ public class Lobby : MonoBehaviour
 
     void LoadGameScene()
     {
-        NetworkManager.Singleton.SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene("Map", LoadSceneMode.Single);
         NetworkManager.Singleton.SceneManager.OnLoadComplete += LoadAdditiveScene;
     }
     
     void LoadAdditiveScene(ulong id,string sceneName, LoadSceneMode mode)
     {
-        NetworkManager.Singleton.SceneManager.LoadScene("Map", LoadSceneMode.Additive);
+        NetworkManager.Singleton.SceneManager.LoadScene("SampleScene", LoadSceneMode.Additive);
         NetworkManager.Singleton.SceneManager.OnLoadComplete -= LoadAdditiveScene;
         NetworkManager.Singleton.SceneManager.OnLoadComplete += StartGame;
     }

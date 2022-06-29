@@ -1,10 +1,9 @@
-using System.Collections;
-using System.Collections.Generic;
+using FogOfWarPackage;
 using Unity.Netcode;
 using UnityEditor;
 using UnityEngine;
 
-public class TeamComponent : NetworkBehaviour
+public class TeamComponent : NetworkBehaviour, IFogOfWarEntity
 {
     public TeamState team;
 
@@ -34,6 +33,21 @@ public class TeamComponent : NetworkBehaviour
         {
             Team = newTeam;
         }
+    }
+
+    public Vector2 GetVisibilityPosition()
+    {
+        return new Vector2(transform.position.x, transform.position.z);
+    }
+
+    public float GetVisibilityRadius()
+    {
+        return 10;
+    }
+
+    public float GetPermanentVisibilityRadius()
+    {
+        return 20;
     }
 }
 

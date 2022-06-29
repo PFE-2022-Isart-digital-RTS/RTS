@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using FogOfWarPackage;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 // Contains server data that is team specific
 public class TeamState : NetworkBehaviour
@@ -18,20 +20,30 @@ public class TeamState : NetworkBehaviour
     List<TeamComponent> units = new List<TeamComponent>();
 
     List<HaveOptionsComponent> selectables = new List<HaveOptionsComponent>();
+    
+    public TerrainFogOfWar[] fogsOfWar;
 
     public List<TeamComponent> Units { get => units; }
     public List<HaveOptionsComponent> Selectables { get => selectables; }
 
     private void OnEnable()
     {
-        if (!IsServer)
-            return;
-
-        foreach (TeamComponent e in GameObject.FindObjectsOfType<TeamComponent>())
+        if (IsClient)
         {
-            if (e.Team == this)
+            Volume postProcessVolume = FindObjectOfType<Volume>();
+            fogsOfWar = FindObjectsOfType<TerrainFogOfWar>();
+            postProcessVolume.profile.TryGet(out FogOfWarPostProcess fow);
+            fow.terrainsFogOfWar.value = fogsOfWar;
+        }
+
+        if (IsServer)
+        {
+            foreach (TeamComponent e in GameObject.FindObjectsOfType<TeamComponent>())
             {
-                RegisterUnit(e);
+                if (e.Team == this)
+                {
+                    RegisterUnit(e);
+                }
             }
         }
     }
@@ -58,14 +70,39 @@ public class TeamState : NetworkBehaviour
         HaveOptionsComponent haveOptionsComp = unit.GetComponent<HaveOptionsComponent>();
         if (haveOptionsComp != null && !selectables.Contains(haveOptionsComp))
             selectables.Add(haveOptionsComp);
+
+        // Server
+        RegisterUnitInFogOfWar(unit);
         
         RegisterUnitClientRpc(unit);
+    }
+
+    void RegisterUnitInFogOfWar(TeamComponent unit)
+    {
+        for (int index = 0; index < fogsOfWar.Length; index++)
+        {
+            TerrainFogOfWar fogOfWar = fogsOfWar[index];
+            fogOfWar.RegisterEntity(unit);
+        }
     }
 
     public void UnregisterUnit(TeamComponent unit)
     {
         units.Remove(unit);
+        
+        // Server
+        UnregisterUnitInFogOfWar(unit);
+        
         UnregisterUnitClientRpc(unit);
+    }
+    
+    void UnregisterUnitInFogOfWar(TeamComponent unit)
+    {
+        for (int index = 0; index < fogsOfWar.Length; index++)
+        {
+            TerrainFogOfWar fogOfWar = fogsOfWar[index];
+            fogOfWar.UnregisterEntity(unit);
+        }
     }
 
     [ClientRpc]
@@ -74,6 +111,8 @@ public class TeamState : NetworkBehaviour
         if (!IsServer)
             if (unit.TryGet(out TeamComponent addedUnit))
             {
+                RegisterUnitInFogOfWar(addedUnit);
+                
                 if (!units.Contains(addedUnit))
                     units.Add(addedUnit);
 
@@ -89,6 +128,7 @@ public class TeamState : NetworkBehaviour
         if (!IsServer)
             if (unit.TryGet(out TeamComponent removedUnit))
             {
+                UnregisterUnitInFogOfWar(removedUnit);
                 units.Remove(removedUnit);
             }
     }

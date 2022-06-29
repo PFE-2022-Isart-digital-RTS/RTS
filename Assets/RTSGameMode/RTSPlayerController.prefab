@@ -439,8 +439,8 @@ MonoBehaviour:
   exposureTarget: {fileID: 0}
   m_RenderingPathCustomFrameSettings:
     bitDatas:
-      data1: 72127434241674252
-      data2: 13763000468760363032
+      data1: 72127434241705996
+      data2: 13763000468626210840
     lodBias: 1
     lodBiasMode: 0
     lodBiasQualityLevel: 0
@@ -453,8 +453,8 @@ MonoBehaviour:
     materialQuality: 0
   renderingPathCustomFrameSettingsOverrideMask:
     mask:
-      data1: 70898056360769
-      data2: 0
+      data1: 70898056361793
+      data2: 134152192
   defaultFrameSettings: 0
 --- !u!1 &5163443650564385770
 GameObject:

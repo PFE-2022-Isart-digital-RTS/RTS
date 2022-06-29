@@ -1,7 +1,8 @@
-using System.Collections;
 using System.Collections.Generic;
+using FogOfWarPackage;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 public class RTSGameMode : NetworkBehaviour
 {
@@ -32,7 +33,7 @@ public class RTSGameMode : NetworkBehaviour
 
     [HideInInspector]
     public RTSGameState gameState;
-
+    
 
     public class RTSPlayerStartData
     {
@@ -183,9 +184,18 @@ public class RTSGameMode : NetworkBehaviour
             playerControllers[i].SetEnable(true);
         }
 
+        Volume postProcessVolume = FindObjectOfType<Volume>();
+        TerrainFogOfWar[] terrainFogOfWar = FindObjectsOfType<TerrainFogOfWar>();
+        postProcessVolume.profile.TryGet(out FogOfWarPostProcess fow);
+        fow.terrainsFogOfWar.value = terrainFogOfWar;
+        
         foreach (TeamState team in teams)
         {
             team.enabled = true;
+            
+            // TODO: Sort fog of war by team
+            team.fogsOfWar = terrainFogOfWar;
+            
             team.SetEnable_ClientRpc(true);
         }
     }

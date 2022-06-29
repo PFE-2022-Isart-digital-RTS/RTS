@@ -1,11 +1,11 @@
 using ContextualMenuPackage;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnitSelectionPackage;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 // TODO : Link each PlayerController to the PlayerState through network?
@@ -96,7 +96,6 @@ public class RTSPlayerController : PlayerController
 
     public Action<Vector3> RequestPosition { get; set; }
 
-
     #region MonoBehaviour
 
     private void Awake()
@@ -128,7 +127,7 @@ public class RTSPlayerController : PlayerController
     {
         if (!IsOwner)
             return;
-
+        
         m_unitSelection.OnSelection += selected =>
         {
             m_contextualMenu.SetContextualizable(selected);
