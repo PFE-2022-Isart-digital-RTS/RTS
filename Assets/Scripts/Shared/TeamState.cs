@@ -12,6 +12,9 @@ public class TeamState : NetworkBehaviour
     public float nbGolds;
     public float nbSupplies;
 
+    // Upgrades
+    public float unitsDamageMultiplier = 1.0f;
+
     //// Buildings and units that the team owns
     //List<GameObject> entities;
     [SerializeField]

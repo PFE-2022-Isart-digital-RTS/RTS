@@ -24,6 +24,8 @@ public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualiz
     [HideInInspector] public HaveInstructions haveInstructionsComponent;
     [HideInInspector] public MoveComponent moveComponent;
 
+    public List<ContextualMenuItem> items = new List<ContextualMenuItem>();
+
     #region MonoBehaviour
     protected void Awake()
     {
@@ -31,6 +33,11 @@ public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualiz
         moveComponent = GetComponent<MoveComponent>();
         m_material = GetComponentInChildren<Renderer>().material;
         m_baseColor = m_material.color;
+
+        foreach (ContextualMenuEntity entityItem in items)
+        {
+            actions.Add(entityItem.ActionName);
+        }
     }
 
     //IEnumerator reg()
@@ -86,28 +93,5 @@ public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualiz
     {
         return actions;
     }
-
-    //public void StopMovement()
-    //{
-    //    moveComponent.Stop();
-    //}
-
-    //public void MoveTo(Vector3 target)
-    //{
-    //    moveComponent.MoveTo(target);
-    //}
-
-    //// TODO : Set ownership ?
-    //// However, if two players are in the same team and they can move each other's units,
-    //// then ownership should be false and team should be checked
-    //[ServerRpc(RequireOwnership = false)]
-    //public void TryMoveToServerRPC(Vector3 pos, ServerRpcParams serverRpcParams = default)
-    //{
-    //    // TODO : verify if the call is correct, depending on the client id calling this function
-    //    //ulong playerID = serverRpcParams.Receive.SenderClientId;
-
-    //    MoveTo(pos);
-    //}
-
 }
 

@@ -67,6 +67,33 @@ public class RTSPlayerController : PlayerController
         }
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void TryBuyItemServerRPC(string actionName, NetworkBehaviourReference[] contextualizables, ServerRpcParams serverRpcParams = default)
+    {
+        List<HaveOptionsComponent> haveOptionsCompsList = new List<HaveOptionsComponent>(contextualizables.Length);
+        foreach (NetworkBehaviourReference entitySelected in contextualizables)
+        {
+            if (entitySelected.TryGet(out NetworkBehaviour newNetBehaviour))
+            {
+                if (newNetBehaviour is HaveOptionsComponent optionComp)
+                {
+                    haveOptionsCompsList.Add(optionComp);
+                }
+            }
+        }
+
+        List<HaveOptionsComponent> validOptionComps = haveOptionsCompsList.FindAll((HaveOptionsComponent optionsComp) => optionsComp.actions.Contains(actionName));
+        if (validOptionComps.Count == 0)
+            return;
+
+        ContextualMenuItem item = availableItems.Find((ContextualMenuItem menuItem) => menuItem.ActionName == actionName);
+        if (item == null)
+            Debug.LogWarning("Player can't purchase item : item not listed in RTSPlayerController");
+        else 
+            item.TryPurchase(validOptionComps[0]);
+
+    }
+
     // List<ICanBeSelected> selectedEntities;
 
     // TODO : UI
@@ -93,9 +120,13 @@ public class RTSPlayerController : PlayerController
 
     public Toggle btnMove;
     public Button btnStop;
+    private Button[] btnsBuyItem = new Button[0];
+    [SerializeField]
+    private GameObject buyItemButtonPrefab;
 
     public Action<Vector3> RequestPosition { get; set; }
 
+    public List<ContextualMenuItem> availableItems = new List<ContextualMenuItem>();
 
     #region MonoBehaviour
 
@@ -122,6 +153,10 @@ public class RTSPlayerController : PlayerController
 
         m_contextualMenu.AddTask("Move", new MoveContext());
         m_contextualMenu.AddTask("Stop", new Stop());
+        foreach (ContextualMenuEntity entityItem in availableItems)
+        {
+            m_contextualMenu.AddTask(entityItem.ActionName, entityItem);
+        }
     }
 
     private void OnEnable()
@@ -138,8 +173,20 @@ public class RTSPlayerController : PlayerController
 
             btnStop.gameObject.SetActive(false);
 
-            foreach (string task in m_contextualMenu.GetTasks())
+            var v = m_contextualMenu.GetTasks();
+
+            foreach (Button button in btnsBuyItem)
             {
+                if (button != null)
+                    Destroy(button.gameObject);
+            }
+
+            string[] tasks = m_contextualMenu.GetTasks();
+            int nbTasks = tasks.Length;
+            btnsBuyItem = new Button[nbTasks];
+            for (int i = 0; i < nbTasks; i++)
+            {
+                string task = tasks[i];
                 switch (task)
                 {
                     case "Move":
@@ -147,6 +194,21 @@ public class RTSPlayerController : PlayerController
                         break;
                     case "Stop":
                         btnStop.gameObject.SetActive(true);
+                        break;
+                    default:
+                        if (m_contextualMenu.GetTask(task) is ContextualMenuItem menuItem)
+                        {
+                            Button itemButton = Instantiate(buyItemButtonPrefab, btnStop.transform.parent).GetComponent<Button>();
+                            Image itemIcon = itemButton.gameObject.GetComponent<Image>();
+                            itemButton.onClick.RemoveAllListeners();
+                            itemButton.onClick.AddListener(delegate
+                            {
+                                m_contextualMenu.InvokeTask(task);
+                            });
+                            itemIcon.sprite = menuItem.Icon;
+                            itemButton.gameObject.SetActive(true);
+                            btnsBuyItem[i] = itemButton;
+                        }
                         break;
                 }
             }
