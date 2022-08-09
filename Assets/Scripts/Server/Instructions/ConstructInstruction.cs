@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class ConstructInstruction : Instruction
 {
+    HaveInstructions ownerEntity;
     MoveComponent moveComponent;
     ICanConstruct canConstructComponent;
     InConstructionComponent entityToConstruct;
@@ -11,7 +12,7 @@ public class ConstructInstruction : Instruction
 
     public ConstructInstruction(HaveInstructions ownerEntity, InConstructionComponent entityToConstruct)
     {
-        base.ownerEntity = ownerEntity;
+        this.ownerEntity = ownerEntity;
         this.entityToConstruct = entityToConstruct;
         moveComponent = ownerEntity.GetComponent<MoveComponent>();
         canConstructComponent = ownerEntity.GetComponent<ICanConstruct>();
