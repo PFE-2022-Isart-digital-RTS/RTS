@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class InstructionQueue : InstructionRunner
 {
-    InstructionWithNext lastTask;
+    InstructionWithNext lastTask = null;
 
     public void Clear()
     {
@@ -14,8 +14,24 @@ public class InstructionQueue : InstructionRunner
 
     public void AddInstruction(InstructionWithNext newInstruction)
     {
-        lastTask.next = newInstruction;
+        if (lastTask == null)
+        {
+            AssignNewInstruction(newInstruction);
+        }
+        else
+        {
+            lastTask.next = newInstruction;
+        }
+
         lastTask = newInstruction;
+    }
+
+    public override void AssignNewInstruction(Instruction newInstruction)
+    {
+        base.AssignNewInstruction(newInstruction);
+
+        if (!IsRunningInstruction())
+            lastTask = null;
     }
 }
 
