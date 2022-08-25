@@ -18,8 +18,6 @@ public class RTSPlayerController : PlayerController
     public new RTSPlayerState PlayerState { get => (RTSPlayerState) base.PlayerState; set => base.PlayerState = value; }
     public static new RTSPlayerController LocalInstance { get => (RTSPlayerController)PlayerController.LocalInstance; }
 
-    List<Squad> squads = new List<Squad>();
-
     List<T> NetBehavioursToComponents<T>(NetworkBehaviourReference[] netBehaviours) where T : NetworkBehaviour
     {
         List<T> units = new List<T>(netBehaviours.Length);
@@ -121,6 +119,21 @@ public class RTSPlayerController : PlayerController
         squad.MoveTo(targetPosition);
     }
 
+    // TODO : Set ownership ?
+    // However, if two players are in the same team and they can move each other's units,
+    // then ownership should be false and team should be checked
+    [ServerRpc(RequireOwnership = false)]
+    public void TryStopActionServerRPC(NetworkObjectReference[] unitsReferences, ServerRpcParams serverRpcParams = default)
+    {
+        // TODO : verify if the call is correct, depending on the client id calling this function
+        //ulong playerID = serverRpcParams.Receive.SenderClientId;
+
+        // Retrieve the list of units
+        List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
+
+        MakeNewSquad(units);
+    }
+
     [ServerRpc(RequireOwnership = false)]
     public void TryBuildServerRPC(NetworkObjectReference[] unitsReferences, Vector3 targetPosition, string buildingName, ServerRpcParams serverRpcParams = default)
     {
@@ -145,18 +158,6 @@ public class RTSPlayerController : PlayerController
     public void TryBuyItemServerRPC(string actionName, NetworkBehaviourReference[] contextualizables, ServerRpcParams serverRpcParams = default)
     {
         List<HaveOptionsComponent> haveOptionsCompsList = NetBehavioursToComponents<HaveOptionsComponent>(contextualizables);
-
-        //List<HaveOptionsComponent> haveOptionsCompsList = new List<HaveOptionsComponent>(contextualizables.Length);
-        //foreach (NetworkBehaviourReference entitySelected in contextualizables)
-        //{
-        //    if (entitySelected.TryGet(out NetworkBehaviour newNetBehaviour))
-        //    {
-        //        if (newNetBehaviour is HaveOptionsComponent optionComp)
-        //        {
-        //            haveOptionsCompsList.Add(optionComp);
-        //        }
-        //    }
-        //}
 
         List<HaveOptionsComponent> validOptionComps = haveOptionsCompsList.FindAll((HaveOptionsComponent optionsComp) => optionsComp.actions.Contains(actionName));
         if (validOptionComps.Count == 0)
