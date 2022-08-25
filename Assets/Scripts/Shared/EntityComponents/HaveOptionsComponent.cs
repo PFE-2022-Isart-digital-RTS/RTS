@@ -34,10 +34,57 @@ public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualiz
         m_material = GetComponentInChildren<Renderer>().material;
         m_baseColor = m_material.color;
 
-        foreach (ContextualMenuEntity entityItem in items)
+        foreach (ContextualMenuItem entityItem in items)
         {
             actions.Add(entityItem.ActionName);
         }
+    }
+
+    public void AddOption(string option)
+    {
+        if (!NetworkManager.Singleton.IsServer)
+        {
+            Debug.LogError("Can't add option from client.");
+            return;
+        }
+
+        actions.Add(option);
+        AddOptionClientRPC(option);
+    }
+
+    [ClientRpc]
+    public void AddOptionClientRPC(string option)
+    {
+        actions.Add(option);
+    }
+
+    public void AddOption(ContextualMenuItem option)
+    {
+        AddOption(option.ActionName);
+    }
+
+    [ClientRpc]
+    public void RemoveOptionClientRPC(string option)
+    {
+        actions.Remove(option);
+    }
+
+
+    public void RemoveOption(string option)
+    {
+        if (!NetworkManager.Singleton.IsServer)
+        {
+            Debug.LogError("Can't remove option from client.");
+            return;
+        }
+
+        actions.Remove(option);
+        RemoveOptionClientRPC(option);
+    }
+
+    public void RemoveOption(ContextualMenuItem option)
+    {
+        RemoveOption(option.ActionName);
     }
 
     //IEnumerator reg()

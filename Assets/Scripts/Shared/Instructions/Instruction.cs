@@ -2,20 +2,128 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-// Should Instruction become a MonoBehaviour ?
-public abstract class Instruction
+public class InstructionQueue : InstructionRunner
 {
-    protected HaveInstructions ownerEntity;
+    InstructionWithNext lastTask = null;
 
-    public abstract void OnStart();
-    public abstract void OnEnd();
-    public abstract void OnStop();
-    public abstract void OnUpdate(); // ??? (should not be used, coroutines ran from OnStart() are better)
-    public Coroutine StartCoroutine(IEnumerator e)
+    public void Clear()
     {
-        return ownerEntity.StartCoroutine(e);
+        StopCurrentInstruction();
+        lastTask = null;
     }
 
-    // Returns if the entity can do the action or not depending on itself (e.g. a building can't move since it doesn't have the MovementComponent)
+    public void AddInstruction(InstructionWithNext newInstruction)
+    {
+        if (lastTask == null)
+        {
+            AssignNewInstruction(newInstruction);
+        }
+        else
+        {
+            lastTask.next = newInstruction;
+        }
+
+        lastTask = newInstruction;
+    }
+
+    public override void AssignNewInstruction(Instruction newInstruction)
+    {
+        //base.AssignNewInstruction(newInstruction);
+
+        if (IsRunningInstruction())
+        {
+            currentInstruction.OnEnd();
+            currentInstruction.taskRunner = null;
+        }
+
+        currentInstruction = newInstruction;
+        if (IsRunningInstruction())
+        {
+            currentInstruction.taskRunner = this;
+            currentInstruction.OnStart();
+        }
+
+        lastTask = IsRunningInstruction() ? (InstructionWithNext) newInstruction : null;
+    }
+}
+
+public class InstructionRunner
+{
+    protected Instruction currentInstruction;
+    public Instruction CurrentInstruction { get => currentInstruction; }
+
+    public object blackboard;
+
+    public bool IsInstructionRunning(Instruction task)
+    {
+        return currentInstruction == task;
+    }
+
+    public bool IsRunningInstruction()
+    {
+        return currentInstruction != null;
+    }
+
+    public void StopCurrentInstruction()
+    {
+        if (IsRunningInstruction())
+        {
+            currentInstruction.OnStop();
+            currentInstruction.taskRunner = null;
+            currentInstruction = null;
+        }
+    }
+
+    public virtual void AssignNewInstruction(Instruction newInstruction)
+    {
+        if (IsRunningInstruction())
+        {
+            currentInstruction.OnStop();
+            currentInstruction.taskRunner = null;
+        }
+
+        currentInstruction = newInstruction;
+        if (IsRunningInstruction())
+        {
+            currentInstruction.taskRunner = this;
+            currentInstruction.OnStart();
+        }
+    }
+
+    public void UpdateCurrentInstruction()
+    {
+        if (IsRunningInstruction())
+            currentInstruction.OnUpdate();
+    }
+}
+
+public abstract class Instruction
+{
+    public InstructionRunner taskRunner;
+
+    public abstract void OnStart();
+
+    public virtual void OnEnd()
+    {
+    }
+
+    public virtual void OnUpdate()
+    {
+    }
+
+    public virtual void OnStop()
+    {
+    }
+
     public abstract bool CanDoInstruction();
 }
+
+public abstract class InstructionWithNext : Instruction
+{
+    public Instruction next;
+
+    protected void RunNextInstruction()
+    {
+        taskRunner.AssignNewInstruction(next);
+    }
+} 
