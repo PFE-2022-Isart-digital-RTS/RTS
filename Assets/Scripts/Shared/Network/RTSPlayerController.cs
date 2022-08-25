@@ -2,6 +2,7 @@ using ContextualMenuPackage;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnitSelectionPackage;
 using Unity.Netcode;
 using UnityEngine;
@@ -19,68 +20,143 @@ public class RTSPlayerController : PlayerController
 
     List<Squad> squads = new List<Squad>();
 
-    // TODO : Set ownership ?
-    // However, if two players are in the same team and they can move each other's units,
-    // then ownership should be false and team should be checked
-    [ServerRpc(RequireOwnership = false)]
-    public void TryMoveToServerRPC(NetworkBehaviourReference[] moveComponents, Vector3 targetPosition, ServerRpcParams serverRpcParams = default)
+    List<T> NetBehavioursToComponents<T>(NetworkBehaviourReference[] netBehaviours) where T : NetworkBehaviour
     {
-        // TODO : verify if the call is correct, depending on the client id calling this function
-        //ulong playerID = serverRpcParams.Receive.SenderClientId;
-
-        List<MoveComponent> units = new List<MoveComponent>();
-        foreach (NetworkBehaviourReference unitRef in moveComponents)
+        List<T> units = new List<T>(netBehaviours.Length);
+        foreach (NetworkBehaviourReference unitRef in netBehaviours)
         {
-            if (unitRef.TryGet(out MoveComponent moveComp))
+            if (unitRef.TryGet(out T moveComp))
             {
                 TeamComponent team = moveComp.GetComponent<TeamComponent>();
                 if (team != null && team.team == PlayerState.Team)
                     units.Add(moveComp);
             }
         }
+        return units;
+    }
 
-        squads.Add(new Squad { squadUnits = units });
-
-        Vector3 OffsetFromStart;
-        int unitCount = moveComponents.Length;
-        float unitCountSqrt = Mathf.Sqrt(unitCount);
-        int NumberOfCharactersRow = (int)unitCountSqrt;
-        int NumberOfCharactersColumn = (int)unitCountSqrt + unitCount - NumberOfCharactersRow * NumberOfCharactersRow;
-        float Distance = 1f;
-
-        OffsetFromStart = new Vector3(NumberOfCharactersRow * Distance / 2f, 0f,
-            NumberOfCharactersColumn * Distance / 2f);
-
-        for (int i = 0; i < unitCount; i++)
+    List<GameObject> NetObjectsToGameObjects(NetworkObjectReference[] netUnits) 
+    {
+        List<GameObject> units = new List<GameObject>();
+        foreach (NetworkObjectReference unitRef in netUnits)
         {
-            if (moveComponents[i].TryGet(out MoveComponent moveComponent))
+            if (unitRef.TryGet(out NetworkObject netUnit))
             {
-                int r = i / NumberOfCharactersRow;
-                int c = i % NumberOfCharactersRow;
-                Vector3 offset = new Vector3(r * Distance, 0f, c * Distance);
-                Vector3 pos = targetPosition + offset - OffsetFromStart;
-                //entity.MoveTo(pos);
-                Instruction moveInstruction = new MoveInstruction { moveComponent = moveComponent, targetLocation = pos };
-                // to modify, the instruction should be added to the HaveInstruction component
-                moveComponent.moveInstruction = moveInstruction;
+                TeamComponent team = netUnit.GetComponent<TeamComponent>();
+                if (team != null && team.team == PlayerState.Team)
+                    units.Add(netUnit.gameObject);
             }
         }
+        return units;
+    }
+
+    Squad GetSquad(List<GameObject> units)
+    {
+        foreach (Squad squad in PlayerState.Team.Squads)
+        {
+            HashSet<GameObject> unitsSet = new HashSet<GameObject>(units);
+            HashSet<GameObject> squadUnitsSet = new HashSet<GameObject>(squad.squadUnits);
+            bool isEqual = unitsSet.SetEquals(squadUnitsSet);
+            if (isEqual)
+            {
+                return squad;
+            }
+        }
+
+        return null;
+    }
+
+    Squad GetOrAddSquad(List<GameObject> units)
+    {
+        Squad squad = GetSquad(units);
+        if (squad == null)
+        {
+            GameObject squadGO = new GameObject();
+            squadGO.name = "Squad";
+
+            squad = squadGO.AddComponent<Squad>();
+            squad.squadUnits = units;
+            squad.Team = PlayerState.Team;
+        }
+        return squad;
+    }
+
+    Squad MakeNewSquad(List<GameObject> units)
+    {
+        GameObject squadGO = new GameObject();
+        squadGO.name = "Squad";
+
+        Squad squad = squadGO.AddComponent<Squad>();
+        squad.Team = PlayerState.Team;
+
+        foreach (GameObject unit in units)
+        {
+            if (PlayerState.Team.UnitToSquadMap.TryGetValue(unit, out Squad oldSquad))
+            {
+                oldSquad.RemoveUnit(unit);
+            }
+
+            PlayerState.Team.UnitToSquadMap[unit] = squad;
+        }
+
+        squad.squadUnits = units;
+
+        return squad;
+    }
+
+    // TODO : Set ownership ?
+    // However, if two players are in the same team and they can move each other's units,
+    // then ownership should be false and team should be checked
+    [ServerRpc(RequireOwnership = false)]
+    public void TryMoveToServerRPC(NetworkObjectReference[] unitsReferences, Vector3 targetPosition, ServerRpcParams serverRpcParams = default)
+    {
+        // TODO : verify if the call is correct, depending on the client id calling this function
+        //ulong playerID = serverRpcParams.Receive.SenderClientId;
+
+        // Retrieve the list of units
+        List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
+
+        Squad squad = MakeNewSquad(units);
+
+        squad.MoveTo(targetPosition);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void TryBuildServerRPC(NetworkObjectReference[] unitsReferences, Vector3 targetPosition, string buildingName, ServerRpcParams serverRpcParams = default)
+    {
+        // TODO : verify if the call is correct, depending on the client id calling this function
+        //ulong playerID = serverRpcParams.Receive.SenderClientId;
+
+        // Retrieve the list of units
+        List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
+
+        Squad squad = MakeNewSquad(units);
+
+        squad.MoveTo(targetPosition);
+
+        GameObject prefabBuildingToSpawn = PlayerState.Team.availableBuildings.Find((GameObject go) => go.name == buildingName);
+        if (prefabBuildingToSpawn == null)
+            Debug.LogWarning("Prefab not found in the team state's available buildings : hacks?");
+        else
+            squad.AddBuild(targetPosition, prefabBuildingToSpawn);
     }
 
     [ServerRpc(RequireOwnership = false)]
     public void TryBuyItemServerRPC(string actionName, NetworkBehaviourReference[] contextualizables, ServerRpcParams serverRpcParams = default)
     {
-        List<HaveOptionsComponent> haveOptionsCompsList = new List<HaveOptionsComponent>(contextualizables.Length);
-        foreach (NetworkBehaviourReference entitySelected in contextualizables)
-        {
-            if (entitySelected.TryGet(out NetworkBehaviour newNetBehaviour))
-            {
-                if (newNetBehaviour is HaveOptionsComponent optionComp)
-                {
-                    haveOptionsCompsList.Add(optionComp);
-                }
-            }
-        }
+        List<HaveOptionsComponent> haveOptionsCompsList = NetBehavioursToComponents<HaveOptionsComponent>(contextualizables);
+
+        //List<HaveOptionsComponent> haveOptionsCompsList = new List<HaveOptionsComponent>(contextualizables.Length);
+        //foreach (NetworkBehaviourReference entitySelected in contextualizables)
+        //{
+        //    if (entitySelected.TryGet(out NetworkBehaviour newNetBehaviour))
+        //    {
+        //        if (newNetBehaviour is HaveOptionsComponent optionComp)
+        //        {
+        //            haveOptionsCompsList.Add(optionComp);
+        //        }
+        //    }
+        //}
 
         List<HaveOptionsComponent> validOptionComps = haveOptionsCompsList.FindAll((HaveOptionsComponent optionsComp) => optionsComp.actions.Contains(actionName));
         if (validOptionComps.Count == 0)
@@ -90,7 +166,7 @@ public class RTSPlayerController : PlayerController
         if (item == null)
             Debug.LogWarning("Player can't purchase item : item not listed in RTSPlayerController");
         else 
-            item.TryPurchase(validOptionComps[0]);
+            item.TryPurchase(validOptionComps);
 
     }
 
@@ -153,7 +229,7 @@ public class RTSPlayerController : PlayerController
 
         m_contextualMenu.AddTask("Move", new MoveContext());
         m_contextualMenu.AddTask("Stop", new Stop());
-        foreach (ContextualMenuEntity entityItem in availableItems)
+        foreach (ContextualMenuItem entityItem in availableItems)
         {
             m_contextualMenu.AddTask(entityItem.ActionName, entityItem);
         }

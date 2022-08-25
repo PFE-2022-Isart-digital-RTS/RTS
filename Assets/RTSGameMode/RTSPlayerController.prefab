@@ -836,6 +836,7 @@ MonoBehaviour:
   buyItemButtonPrefab: {fileID: 5295795257128345654, guid: 6a9bb1e84d5410e4ba9bb52a8cf12bee, type: 3}
   availableItems:
   - {fileID: 11400000, guid: ca913dbcfd640ca4caa88d0f4e9ae15a, type: 2}
+  - {fileID: 11400000, guid: 66ca5d234340138498ebb1eabce0a709, type: 2}
 --- !u!1 &6416319979972290492
 GameObject:
   m_ObjectHideFlags: 0

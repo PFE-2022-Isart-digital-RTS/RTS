@@ -28,16 +28,29 @@ public class InstructionQueue : InstructionRunner
 
     public override void AssignNewInstruction(Instruction newInstruction)
     {
-        base.AssignNewInstruction(newInstruction);
+        //base.AssignNewInstruction(newInstruction);
 
-        if (!IsRunningInstruction())
-            lastTask = null;
+        if (IsRunningInstruction())
+        {
+            currentInstruction.OnEnd();
+            currentInstruction.taskRunner = null;
+        }
+
+        currentInstruction = newInstruction;
+        if (IsRunningInstruction())
+        {
+            currentInstruction.taskRunner = this;
+            currentInstruction.OnStart();
+        }
+
+        lastTask = IsRunningInstruction() ? (InstructionWithNext) newInstruction : null;
     }
 }
 
 public class InstructionRunner
 {
     protected Instruction currentInstruction;
+    public Instruction CurrentInstruction { get => currentInstruction; }
 
     public object blackboard;
 
@@ -65,7 +78,7 @@ public class InstructionRunner
     {
         if (IsRunningInstruction())
         {
-            currentInstruction.OnEnd();
+            currentInstruction.OnStop();
             currentInstruction.taskRunner = null;
         }
 
@@ -113,4 +126,4 @@ public abstract class InstructionWithNext : Instruction
     {
         taskRunner.AssignNewInstruction(next);
     }
-}
+} 

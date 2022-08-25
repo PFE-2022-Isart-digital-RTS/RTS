@@ -62,3 +62,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   nbGolds: 0
   nbSupplies: 0
+  unitsDamageMultiplier: 1
+  units: []
+  availableBuildings:
+  - {fileID: 9105993614704995009, guid: 9b8d7b51b8ef3f146b754c5d34ffc6e9, type: 3}
+  - {fileID: 9105993614704995009, guid: b4624a47d1611024cbdfa35b81d079ab, type: 3}

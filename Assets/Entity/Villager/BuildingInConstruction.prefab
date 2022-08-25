@@ -92,7 +92,7 @@ GameObject:
   - component: {fileID: 2885231738406318893}
   - component: {fileID: 3892434891633721555}
   - component: {fileID: 5254730971584803473}
-  - component: {fileID: 4953510395180600233}
+  - component: {fileID: 6137536661884788538}
   m_Layer: 0
   m_Name: Capsule
   m_TagString: Untagged
@@ -122,7 +122,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8336014410177090035}
-  m_Mesh: {fileID: 10208, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &5254730971584803473
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -164,8 +164,8 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!136 &4953510395180600233
-CapsuleCollider:
+--- !u!65 &6137536661884788538
+BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -174,9 +174,8 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.5
-  m_Height: 2
-  m_Direction: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &9105993614704995009
 GameObject:
@@ -189,14 +188,14 @@ GameObject:
   - component: {fileID: 787350293450187484}
   - component: {fileID: 1803646064998642883}
   - component: {fileID: 6198982835640008788}
-  - component: {fileID: 4444302557525839843}
   - component: {fileID: 1004548569993264518}
   - component: {fileID: 1041815327066243127}
   - component: {fileID: 3253110474988349222}
   - component: {fileID: 1912764190482872433}
-  - component: {fileID: 4531924623058947615}
+  - component: {fileID: -9001475509478367427}
+  - component: {fileID: 3864512030091611449}
   m_Layer: 0
-  m_Name: Villager
+  m_Name: BuildingInConstruction
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -211,7 +210,7 @@ Transform:
   m_GameObject: {fileID: 9105993614704995009}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_Children:
   - {fileID: 2885231738406318893}
   m_Father: {fileID: 0}
@@ -260,25 +259,6 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   CanCommitToTransform: 0
---- !u!114 &4444302557525839843
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9105993614704995009}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a783d16329da5dd42991b62715417752, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  actions:
-  - Stop
-  - Move
-  haveInstructionsComponent: {fileID: 0}
-  moveComponent: {fileID: 0}
-  items:
-  - {fileID: 11400000, guid: 66ca5d234340138498ebb1eabce0a709, type: 2}
 --- !u!114 &1004548569993264518
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -292,7 +272,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   repLife:
-    m_InternalValue: 10
+    m_InternalValue: 1
   maxLife: 10
   OnNoLife:
     m_PersistentCalls:
@@ -339,7 +319,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   team: {fileID: 0}
---- !u!114 &4531924623058947615
+--- !u!114 &-9001475509478367427
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -348,8 +328,46 @@ MonoBehaviour:
   m_GameObject: {fileID: 9105993614704995009}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 76200f3bd5ad84c4f87be122bf76c1cb, type: 3}
+  m_Script: {fileID: 11500000, guid: f98fb411c7482cd47bbaafa207dfb6da, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  constructionSpeed: 1
-  constructionMaxDist: 1
+  constructionSpeedMultiplier: 1
+  onConstructionSuccess:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 3864512030091611449}
+        m_TargetAssemblyTypeName: HaveOptionsComponent, Assembly-CSharp
+        m_MethodName: AddOption
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 11400000, guid: ca913dbcfd640ca4caa88d0f4e9ae15a, type: 2}
+          m_ObjectArgumentAssemblyTypeName: ContextualMenuItem, Assembly-CSharp
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onConstructionDestroyed:
+    m_PersistentCalls:
+      m_Calls: []
+  onConstructionEnd:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &3864512030091611449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9105993614704995009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a783d16329da5dd42991b62715417752, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  actions:
+  - Stop
+  - Move
+  haveInstructionsComponent: {fileID: 0}
+  moveComponent: {fileID: 0}
+  items: []

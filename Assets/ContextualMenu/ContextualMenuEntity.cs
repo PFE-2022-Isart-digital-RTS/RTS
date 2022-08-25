@@ -3,17 +3,19 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "ContextualMenuEntity", menuName = "ScriptableObjects/SpawnManagerScriptableObject", order = 1)]
+[CreateAssetMenu(fileName = "ContextualMenuEntity", menuName = "ScriptableObjects/ContextualMenuEntity", order = 1)]
 public class ContextualMenuEntity : ContextualMenuItem
 {
     [SerializeField] GameObject entityToSpawnPrefab;
 
-    protected override void OnPurchase(HaveOptionsComponent purchasedFrom)
+    protected override void OnPurchase(List<HaveOptionsComponent> purchasedFrom)
     {
+        HaveOptionsComponent buildBuyingFrom = purchasedFrom[0]; // TODO : function evaluating from which building the entity should be spawned from
+
         // TODO : Spawn units around building
-        GameObject go = Instantiate(entityToSpawnPrefab, purchasedFrom.transform.position + new Vector3(5, 0, 0), Quaternion.identity);
+        GameObject go = Instantiate(entityToSpawnPrefab, buildBuyingFrom.transform.position + new Vector3(5, 0, 0), Quaternion.identity);
         go.GetComponent<NetworkObject>().Spawn(); 
         TeamComponent teamComp = go.GetComponent<TeamComponent>();
-        teamComp.Team = purchasedFrom.GetComponent<TeamComponent>().Team;
+        teamComp.Team = buildBuyingFrom.GetComponent<TeamComponent>().Team;
     }
 }

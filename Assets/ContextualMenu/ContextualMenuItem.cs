@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "ContextualMenuItem", menuName = "ScriptableObjects/SpawnManagerScriptableObject", order = 1)]
+[CreateAssetMenu(fileName = "ContextualMenuItem", menuName = "ScriptableObjects/ContextualMenuItem", order = 1)]
 public abstract class ContextualMenuItem : ScriptableObject, ITask<HaveOptionsComponent>
 {
     [SerializeField]
@@ -19,15 +19,15 @@ public abstract class ContextualMenuItem : ScriptableObject, ITask<HaveOptionsCo
         get => nbGoldsRequired <= RTSPlayerController.LocalInstance.PlayerState.Team.nbGolds;
     }
 
-    protected void Purchase(HaveOptionsComponent purchasedFrom)
+    protected void Purchase(List<HaveOptionsComponent> purchasedFrom)
     {
         RTSPlayerController.LocalInstance.PlayerState.Team.nbGolds -= nbGoldsRequired;
         OnPurchase(purchasedFrom);
     }
 
-    protected abstract void OnPurchase(HaveOptionsComponent purchasedFrom);
+    protected abstract void OnPurchase(List<HaveOptionsComponent> purchasedFrom);
 
-    public void TryPurchase(HaveOptionsComponent purchasedFrom)
+    public void TryPurchase(List<HaveOptionsComponent> purchasedFrom)
     {
         if (CanPurchase)
         {
@@ -45,11 +45,10 @@ public abstract class ContextualMenuItem : ScriptableObject, ITask<HaveOptionsCo
         get => "buy " + ItemName;
     }
 
-    public void OnInvoked(List<HaveOptionsComponent> contextualizables)
+    // Client Side
+    public virtual void OnInvoked(List<HaveOptionsComponent> contextualizables)
     {
         NetworkBehaviourReference[] behaviours = Array.ConvertAll(contextualizables.ToArray(), item => (NetworkBehaviourReference)item);
-
-        //TryPurchase();
         RTSPlayerController.LocalInstance.TryBuyItemServerRPC(ActionName, behaviours);
     }
 }
