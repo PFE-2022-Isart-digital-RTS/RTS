@@ -11,28 +11,21 @@ public abstract class ContextualMenuItem : ScriptableObject, ITask<HaveOptionsCo
     [SerializeField]
     Sprite icon;
     public Sprite Icon { get => icon; }
-    
-    public int nbGoldsRequired = 5;
 
-    virtual public bool CanPurchase
+    [SerializeField]
+    TeamResources finalPrice;
+
+    public TeamResources FinalPrice { get => finalPrice; }
+
+    public float buyDuration = 2f;
+
+    virtual public bool CanPurchaseFinalPrice(TeamState teamState)
     {
-        get => nbGoldsRequired <= RTSPlayerController.LocalInstance.PlayerState.Team.nbGolds;
+        return teamState.Resources >= FinalPrice;
     }
-
-    protected void Purchase(List<HaveOptionsComponent> purchasedFrom)
+    virtual public void PayFinalPrice(TeamState teamState)
     {
-        RTSPlayerController.LocalInstance.PlayerState.Team.nbGolds -= nbGoldsRequired;
-        OnPurchase(purchasedFrom);
-    }
-
-    protected abstract void OnPurchase(List<HaveOptionsComponent> purchasedFrom);
-
-    public void TryPurchase(List<HaveOptionsComponent> purchasedFrom)
-    {
-        if (CanPurchase)
-        {
-            Purchase(purchasedFrom);
-        }
+        teamState.Resources -= FinalPrice;
     }
 
     public virtual string ItemName
@@ -51,5 +44,24 @@ public abstract class ContextualMenuItem : ScriptableObject, ITask<HaveOptionsCo
         NetworkBehaviourReference[] behaviours = Array.ConvertAll(contextualizables.ToArray(), item => (NetworkBehaviourReference)item);
         RTSPlayerController.LocalInstance.TryBuyItemServerRPC(ActionName, behaviours);
     }
+
+    public virtual void OnPurchaseStart(List<HaveOptionsComponent> purchasedFromList)
+    {
+        foreach (HaveOptionsComponent purchasedFrom in purchasedFromList)
+        {
+            OnPurchaseStart(purchasedFrom);
+        }
+    }
+
+    public virtual void OnPurchaseStart(HaveOptionsComponent purchasedFrom)
+    {
+        TeamComponent teamComp = purchasedFrom.GetComponent<TeamComponent>();
+        if (CanPurchaseFinalPrice(teamComp.Team)) // Can pay
+        {
+            teamComp.Team.Resources -= FinalPrice;
+            OnPurchaseEnd(purchasedFrom);
+        }
+    }
+    public abstract void OnPurchaseEnd(HaveOptionsComponent purchasedFrom);
 }
 

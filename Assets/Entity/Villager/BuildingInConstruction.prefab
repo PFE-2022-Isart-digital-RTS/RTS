@@ -194,6 +194,7 @@ GameObject:
   - component: {fileID: 1912764190482872433}
   - component: {fileID: -9001475509478367427}
   - component: {fileID: 3864512030091611449}
+  - component: {fileID: 6667079216893496893}
   m_Layer: 0
   m_Name: BuildingInConstruction
   m_TagString: Untagged
@@ -371,3 +372,15 @@ MonoBehaviour:
   haveInstructionsComponent: {fileID: 0}
   moveComponent: {fileID: 0}
   items: []
+--- !u!114 &6667079216893496893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9105993614704995009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48bfec69975910a449b953e59cc3efff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

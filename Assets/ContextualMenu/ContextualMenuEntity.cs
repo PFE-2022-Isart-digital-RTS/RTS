@@ -8,14 +8,31 @@ public class ContextualMenuEntity : ContextualMenuItem
 {
     [SerializeField] GameObject entityToSpawnPrefab;
 
-    protected override void OnPurchase(List<HaveOptionsComponent> purchasedFrom)
+    public override void OnPurchaseStart(List<HaveOptionsComponent> purchasedFromList)
     {
-        HaveOptionsComponent buildBuyingFrom = purchasedFrom[0]; // TODO : function evaluating from which building the entity should be spawned from
+        HaveOptionsComponent purchasedFrom = purchasedFromList[0]; // TODO : function evaluating from which building the entity should be spawned from
+        OnPurchaseStart(purchasedFrom);
+    }
 
+    public override void OnPurchaseStart(HaveOptionsComponent purchasedFrom)
+    {
+        ItemQueueComponent itemQueue = purchasedFrom.GetComponent<ItemQueueComponent>();
+        if (itemQueue == null)
+        {
+            Debug.LogError("Entity should have a ItemQueueComponent.");
+            return;
+        }
+
+        itemQueue.AddItem(this);
+    }
+
+
+    public override void OnPurchaseEnd(HaveOptionsComponent purchasedFrom)
+    {
         // TODO : Spawn units around building
-        GameObject go = Instantiate(entityToSpawnPrefab, buildBuyingFrom.transform.position + new Vector3(5, 0, 0), Quaternion.identity);
-        go.GetComponent<NetworkObject>().Spawn(); 
+        GameObject go = Instantiate(entityToSpawnPrefab, purchasedFrom.transform.position + new Vector3(5, 0, 0), Quaternion.identity);
+        go.GetComponent<NetworkObject>().Spawn();
         TeamComponent teamComp = go.GetComponent<TeamComponent>();
-        teamComp.Team = buildBuyingFrom.GetComponent<TeamComponent>().Team;
+        teamComp.Team = purchasedFrom.GetComponent<TeamComponent>().Team;
     }
 }

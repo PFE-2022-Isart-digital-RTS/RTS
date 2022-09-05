@@ -25,9 +25,10 @@ public class BuildContext : ContextualMenuItem
         RTSPlayerController.LocalInstance.RequestPosition += OnPositionIndicate;
     }
 
-    protected override void OnPurchase(List<HaveOptionsComponent> purchasedFrom)
+    // Unused because of rpc
+    public override void OnPurchaseEnd(HaveOptionsComponent purchasedFrom)
     {
-        
+        throw new NotImplementedException();
     }
 
     void OnPositionIndicate(Vector3 position)

@@ -167,7 +167,7 @@ public class RTSPlayerController : PlayerController
         if (item == null)
             Debug.LogWarning("Player can't purchase item : item not listed in RTSPlayerController");
         else 
-            item.TryPurchase(validOptionComps);
+            item.OnPurchaseStart(validOptionComps);
 
     }
 

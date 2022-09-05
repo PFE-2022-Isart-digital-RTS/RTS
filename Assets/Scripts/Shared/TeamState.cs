@@ -3,14 +3,55 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
+[System.Serializable]
+public struct TeamResources
+{
+    public float nbGolds;
+    public float nbSupplies;
+
+    public static TeamResources operator +(TeamResources a) => a;
+    public static TeamResources operator -(TeamResources a) => new TeamResources()
+    {
+        nbGolds = - a.nbGolds,
+        nbSupplies = - a.nbSupplies
+    };
+
+    public static TeamResources operator +(TeamResources a, TeamResources b) => new TeamResources()
+    {
+        nbGolds = a.nbGolds + b.nbGolds,
+        nbSupplies = a.nbSupplies + b.nbSupplies
+    };
+
+    public static TeamResources operator -(TeamResources a, TeamResources b) => a + (-b);
+    public static TeamResources operator *(TeamResources a, float b) => new TeamResources()
+    {
+        nbGolds = a.nbGolds * b,
+        nbSupplies = a.nbSupplies * b
+    };
+
+    public static bool operator <=(TeamResources a, TeamResources b)
+    {
+        return a.nbGolds <= b.nbGolds && a.nbSupplies <= b.nbSupplies;
+    }
+    public static bool operator >=(TeamResources a, TeamResources b)
+    {
+        return a.nbGolds >= b.nbGolds && a.nbSupplies >= b.nbSupplies;
+    }
+}
+
 // Contains server data that is team specific
 public class TeamState : NetworkBehaviour
 {
     //public List<RTSPlayerState> playersInTheTeam;
 
     // Resources
-    public float nbGolds = 10;
-    public float nbSupplies = 10;
+    TeamResources resources = new TeamResources()
+    {
+        nbGolds = 10,
+        nbSupplies = 10
+    };
+
+    public TeamResources Resources { get => resources; set => resources = value; }
 
     // Upgrades
     public float unitsDamageMultiplier = 1.0f;
