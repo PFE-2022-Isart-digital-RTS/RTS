@@ -205,6 +205,8 @@ public class RTSPlayerController : PlayerController
 
     public List<ContextualMenuItem> availableItems = new List<ContextualMenuItem>();
 
+    List<HaveOptionsComponent> m_selectedEntities = new List<HaveOptionsComponent>();
+
     #region MonoBehaviour
 
     private void Awake()
@@ -243,6 +245,7 @@ public class RTSPlayerController : PlayerController
 
         m_unitSelection.OnSelection += selected =>
         {
+            m_selectedEntities = selected;
             m_contextualMenu.SetContextualizable(selected);
 
             btnMove.gameObject.SetActive(false);
@@ -297,16 +300,63 @@ public class RTSPlayerController : PlayerController
         if (!IsOwner)
             return;
 
+        // TODO : Reset mouse icon
         if (m_eventSystem != null)
         {
             // On click on world
             bool isPointerOverGameObject = m_eventSystem.IsPointerOverGameObject();
 
-            if (Input.GetMouseButtonDown(1) && !isPointerOverGameObject)
+            if (!isPointerOverGameObject)
             {
+                RaycastHit hit;
+                // Does the ray intersect any objects excluding the player layer
+                if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity))
+                {
+                    if (hit.collider != null)
+                    {
+                        TeamComponent teamComp = hit.collider.GetComponent<TeamComponent>();
+                        if (teamComp != null)
+                        {
+                            if (teamComp.Team == PlayerState.Team)
+                            {
+                                CanBeRepairedComponent canBeRepairedComp = teamComp.GetComponent<CanBeRepairedComponent>();
+                                if (canBeRepairedComp != null)
+                                {
+                                    // TODO : Change mouse icon into repair
+                                    if (Input.GetMouseButtonDown(1))
+                                    {
+                                        // TODO : Repair Context
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                LifeComponent lifeComp = teamComp.GetComponent<LifeComponent>();
+                                if (lifeComp != null)
+                                {
+                                    // TODO : Change mouse icon into attack
+                                    if (Input.GetMouseButtonDown(1))
+                                    {
+                                        // TODO : Attack Context
+                                    }
+                                }
+                            }
+
+                        }
+                    }
+                    else
+                    {
+                        MoveContext moveContext;
+                        if (RequestPosition == null)
+                        {
+                            moveContext = new MoveContext();
+                            moveContext.OnInvoked(m_selectedEntities);
+                        }
+                    }
+                }
+
                 if (RequestPosition != null)
                 {
-                    RaycastHit hit;
                     // Does the ray intersect any objects excluding the player layer
                     if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity,
                         m_layerGround))
