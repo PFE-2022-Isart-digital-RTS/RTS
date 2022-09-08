@@ -24,7 +24,7 @@ public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualiz
     [HideInInspector] public HaveInstructions haveInstructionsComponent;
     [HideInInspector] public MoveComponent moveComponent;
 
-    public List<ContextualMenuItem> items = new List<ContextualMenuItem>();
+    public List<ContextualMenuItemBase> items = new List<ContextualMenuItemBase>();
 
     #region MonoBehaviour
     protected void Awake()
@@ -34,7 +34,7 @@ public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualiz
         m_material = GetComponentInChildren<Renderer>().material;
         m_baseColor = m_material.color;
 
-        foreach (ContextualMenuItem entityItem in items)
+        foreach (ContextualMenuItemBase entityItem in items)
         {
             actions.Add(entityItem.ActionName);
         }
@@ -58,7 +58,7 @@ public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualiz
         actions.Add(option);
     }
 
-    public void AddOption(ContextualMenuItem option)
+    public void AddOption(ContextualMenuItemBase option)
     {
         AddOption(option.ActionName);
     }
@@ -82,7 +82,7 @@ public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualiz
         RemoveOptionClientRPC(option);
     }
 
-    public void RemoveOption(ContextualMenuItem option)
+    public void RemoveOption(ContextualMenuItemBase option)
     {
         RemoveOption(option.ActionName);
     }

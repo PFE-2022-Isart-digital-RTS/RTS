@@ -166,7 +166,46 @@ public class TeamState : NetworkBehaviour
             }
     }
 
-    #endregion 
+    #endregion
+
+    #region Teams
+
+    public enum TeamRelation
+    { 
+        Equal,
+        Ally,
+        Enemy
+    }
+
+    public TeamRelation GetRelationTo(TeamState otherTeam)
+    {
+        if (this == otherTeam)
+            return TeamRelation.Equal;
+
+        if (IsAlly(otherTeam))
+            return TeamRelation.Ally;
+
+        if (!IsEnemy(otherTeam))
+            Debug.LogError("IsAlly or IsEnemy is not implemented properly : two different teams should either be allies or enemies");
+
+        return TeamRelation.Enemy;
+    }
+
+    public bool IsAlly(TeamState otherTeam)
+    {
+        // ally teams are currently not supported, so every other team is an enemy team
+        return false; 
+    }
+
+    public bool IsEnemy(TeamState otherTeam)
+    {
+        // Other team is an enemy if :
+        // - it is not the same team
+        // - it is not an ally
+        return this != otherTeam && !IsAlly(otherTeam);
+    }
+
+    #endregion
 
     #region OnGameEnd
 

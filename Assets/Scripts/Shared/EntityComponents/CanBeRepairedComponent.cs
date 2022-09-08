@@ -4,7 +4,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 [RequireComponent(typeof(LifeComponent))]
-public class CanBeRepairedComponent : MonoBehaviour
+public class CanBeRepairedComponent : NetworkBehaviour
 {
     [SerializeField]
     float constructionSpeedMultiplier = 1f;

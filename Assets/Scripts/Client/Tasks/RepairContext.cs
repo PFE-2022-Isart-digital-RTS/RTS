@@ -5,11 +5,18 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "BuildContext", menuName = "ScriptableObjects/BuildContext", order = 1)]
-public class BuildContext : ContextualMenuItemBase
+[CreateAssetMenu(fileName = "RepairContext", menuName = "ScriptableObjects/RepairContext", order = 1)]
+public class RepairContext : ContextualMenuItemBase
 {
-    [SerializeField]
-    private GameObject buildingToSpawnPrefab;
+    NetworkBehaviourReference canBeRepairedComp;
+
+    public CanBeRepairedComponent CanBeRepairedComp
+    {
+        set
+        {
+            canBeRepairedComp = value;
+        }
+    }
 
     private NetworkObjectReference[] m_targets;
 
@@ -22,11 +29,6 @@ public class BuildContext : ContextualMenuItemBase
             m_targets[i] = targets[i].GetComponent<NetworkObject>();
         }
 
-        RTSPlayerController.LocalInstance.RequestPosition += OnPositionIndicate;
-    }
-
-    void OnPositionIndicate(Vector3 position)
-    {
-        RTSPlayerController.LocalInstance.TryBuildServerRPC(m_targets, position, buildingToSpawnPrefab.name);
+        RTSPlayerController.LocalInstance.TryRepairServerRPC(m_targets, canBeRepairedComp);
     }
 }

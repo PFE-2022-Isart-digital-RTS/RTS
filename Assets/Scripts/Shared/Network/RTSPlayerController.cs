@@ -154,6 +154,33 @@ public class RTSPlayerController : PlayerController
             squad.AddBuild(targetPosition, prefabBuildingToSpawn);
     }
 
+
+    [ServerRpc(RequireOwnership = false)]
+    public void TryRepairServerRPC(NetworkObjectReference[] unitsReferences, NetworkBehaviourReference canBeRepairedComp, ServerRpcParams serverRpcParams = default)
+    {
+        // TODO : verify if the call is correct, depending on the client id calling this function
+        //ulong playerID = serverRpcParams.Receive.SenderClientId;
+
+        // Retrieve the list of units
+        List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
+
+        Squad squad = MakeNewSquad(units);
+
+        CanBeRepairedComponent canBeRepaired;
+        if (canBeRepairedComp.TryGet(out canBeRepaired))
+        {
+            squad.MoveTo(canBeRepaired.transform.position);
+        
+            squad.AddRepair(canBeRepaired);
+        }
+        else
+        {
+            Debug.LogError("Invalid component through rpc.");
+        }
+
+    }
+
+
     [ServerRpc(RequireOwnership = false)]
     public void TryBuyItemServerRPC(string actionName, NetworkBehaviourReference[] contextualizables, ServerRpcParams serverRpcParams = default)
     {
@@ -163,7 +190,7 @@ public class RTSPlayerController : PlayerController
         if (validOptionComps.Count == 0)
             return;
 
-        ContextualMenuItem item = availableItems.Find((ContextualMenuItem menuItem) => menuItem.ActionName == actionName);
+        ContextualMenuItem item = (ContextualMenuItem) availableItems.Find((ContextualMenuItemBase menuItem) => menuItem.ActionName == actionName);
         if (item == null)
             Debug.LogWarning("Player can't purchase item : item not listed in RTSPlayerController");
         else 
@@ -203,7 +230,7 @@ public class RTSPlayerController : PlayerController
 
     public Action<Vector3> RequestPosition { get; set; }
 
-    public List<ContextualMenuItem> availableItems = new List<ContextualMenuItem>();
+    public List<ContextualMenuItemBase> availableItems = new List<ContextualMenuItemBase>();
 
     List<HaveOptionsComponent> m_selectedEntities = new List<HaveOptionsComponent>();
 
@@ -222,20 +249,31 @@ public class RTSPlayerController : PlayerController
 
         btnMove.onValueChanged.AddListener(delegate
         {
-            m_contextualMenu.InvokeTask("Move");
+            OnContextualMenuButtonPreClick();
+            if (btnMove.isOn)
+                m_contextualMenu.InvokeTask("Move");
         });
 
         btnStop.onClick.AddListener(delegate
         {
+            OnContextualMenuButtonPreClick();
             m_contextualMenu.InvokeTask("Stop");
         });
 
         m_contextualMenu.AddTask("Move", new MoveContext());
         m_contextualMenu.AddTask("Stop", new Stop());
-        foreach (ContextualMenuItem entityItem in availableItems)
+        foreach (ContextualMenuItemBase entityItem in availableItems)
         {
-            m_contextualMenu.AddTask(entityItem.ActionName, entityItem);
+            if (entityItem != null)
+                m_contextualMenu.AddTask(entityItem.ActionName, entityItem);
+            else
+                Debug.LogWarning("null element in RTSPlayerController : availableItems");
         }
+    }
+
+    void OnContextualMenuButtonPreClick()
+    {
+        RequestPosition = null;
     }
 
     private void OnEnable()
@@ -252,8 +290,6 @@ public class RTSPlayerController : PlayerController
             btnMove.isOn = false;
 
             btnStop.gameObject.SetActive(false);
-
-            var v = m_contextualMenu.GetTasks();
 
             foreach (Button button in btnsBuyItem)
             {
@@ -276,13 +312,14 @@ public class RTSPlayerController : PlayerController
                         btnStop.gameObject.SetActive(true);
                         break;
                     default:
-                        if (m_contextualMenu.GetTask(task) is ContextualMenuItem menuItem)
+                        if (m_contextualMenu.GetTask(task) is ContextualMenuItemBase menuItem)
                         {
                             Button itemButton = Instantiate(buyItemButtonPrefab, btnStop.transform.parent).GetComponent<Button>();
                             Image itemIcon = itemButton.gameObject.GetComponent<Image>();
                             itemButton.onClick.RemoveAllListeners();
                             itemButton.onClick.AddListener(delegate
                             {
+                                OnContextualMenuButtonPreClick();
                                 m_contextualMenu.InvokeTask(task);
                             });
                             itemIcon.sprite = menuItem.Icon;
@@ -293,6 +330,116 @@ public class RTSPlayerController : PlayerController
                 }
             }
         };
+    }
+
+    #region Mouse
+
+    private bool OnMouseOnEnemyEntity(RaycastHit hit, TeamComponent entity)
+    {
+        LifeComponent lifeComp = entity.GetComponent<LifeComponent>();
+        if (lifeComp != null)
+        {
+            // TODO : Change mouse icon into attack
+            if (Input.GetMouseButtonDown(1))
+            {
+                // TODO : Attack Context
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool OnMouseOnAllyEntity(RaycastHit hit, TeamComponent entity)
+    {
+        CanBeRepairedComponent canBeRepairedComp = entity.GetComponent<CanBeRepairedComponent>();
+        if (canBeRepairedComp != null)
+        {
+            // TODO : Change mouse icon into repair
+            if (Input.GetMouseButtonDown(1))
+            {
+                // TODO : Repair Context
+                RepairContext repairContext = new RepairContext() { CanBeRepairedComp = canBeRepairedComp };
+                repairContext.OnInvoked(m_selectedEntities);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool OnMouseOnOwnedEntity(RaycastHit hit, TeamComponent entity)
+    {
+        return OnMouseOnAllyEntity(hit, entity);
+    }
+
+    private bool OnMouseNotOnEntity(RaycastHit hit)
+    {
+        if (RequestPosition == null)
+        {
+            if (Input.GetMouseButtonDown(1))
+            {
+                MoveContext moveContext = new MoveContext();
+                moveContext.OnInvoked(m_selectedEntities);
+                RequestPosition.Invoke(hit.point);
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    // Returns true if an action has been done
+    private bool OnMouseOnEntity(RaycastHit hit)
+    {
+        TeamComponent teamComp = hit.collider.transform.parent.GetComponent<TeamComponent>();
+        if (teamComp != null)
+        {
+            switch (teamComp.Team.GetRelationTo(PlayerState.Team))
+            {
+                case TeamState.TeamRelation.Equal:
+                    return OnMouseOnOwnedEntity(hit, teamComp);
+
+                case TeamState.TeamRelation.Ally:
+                    return OnMouseOnAllyEntity(hit, teamComp);
+
+                case TeamState.TeamRelation.Enemy:
+                    return OnMouseOnEnemyEntity(hit, teamComp);
+
+                default:
+                    return false;
+            }
+        }
+        else
+        {
+            return OnMouseNotOnEntity(hit);
+        }
+    }
+
+    #endregion
+
+    void UpdateSelection(bool isPointerOverGameObject)
+    {
+        if (Input.GetMouseButtonDown(0) && !isPointerOverGameObject)
+        {
+            if (!m_isSelecting)
+            {
+                m_unitSelection.SetObserver(PlayerState.Team.Selectables);
+                m_unitSelection.OnSelectionBegin(Input.mousePosition);
+                m_isSelecting = true;
+            }
+        }
+
+        if (m_isSelecting)
+        {
+            m_unitSelection.OnSelectionProcess(mainCamera, Input.mousePosition);
+        }
+
+        if (Input.GetMouseButtonUp(0) && !isPointerOverGameObject)
+        {
+            RequestPosition = null;
+            m_unitSelection.OnSelectionEnd();
+            m_isSelecting = false;
+        }
     }
 
     private void Update()
@@ -308,85 +455,34 @@ public class RTSPlayerController : PlayerController
 
             if (!isPointerOverGameObject)
             {
-                RaycastHit hit;
-                // Does the ray intersect any objects excluding the player layer
-                if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity))
-                {
-                    if (hit.collider != null)
-                    {
-                        TeamComponent teamComp = hit.collider.GetComponent<TeamComponent>();
-                        if (teamComp != null)
-                        {
-                            if (teamComp.Team == PlayerState.Team)
-                            {
-                                CanBeRepairedComponent canBeRepairedComp = teamComp.GetComponent<CanBeRepairedComponent>();
-                                if (canBeRepairedComp != null)
-                                {
-                                    // TODO : Change mouse icon into repair
-                                    if (Input.GetMouseButtonDown(1))
-                                    {
-                                        // TODO : Repair Context
-                                    }
-                                }
-                            }
-                            else
-                            {
-                                LifeComponent lifeComp = teamComp.GetComponent<LifeComponent>();
-                                if (lifeComp != null)
-                                {
-                                    // TODO : Change mouse icon into attack
-                                    if (Input.GetMouseButtonDown(1))
-                                    {
-                                        // TODO : Attack Context
-                                    }
-                                }
-                            }
-
-                        }
-                    }
-                    else
-                    {
-                        MoveContext moveContext;
-                        if (RequestPosition == null)
-                        {
-                            moveContext = new MoveContext();
-                            moveContext.OnInvoked(m_selectedEntities);
-                        }
-                    }
-                }
-
                 if (RequestPosition != null)
                 {
+                    RaycastHit hit;
                     // Does the ray intersect any objects excluding the player layer
                     if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity,
                         m_layerGround))
                     {
-                        RequestPosition.Invoke(hit.point);
+                        if (Input.GetMouseButtonDown(1))
+                        {
+                            RequestPosition.Invoke(hit.point);
+                        }
+                    }
+                }
+                else
+                {
+                    RaycastHit hit;
+                    // Does the ray intersect any objects excluding the player layer
+                    if (Physics.Raycast(mainCamera.ScreenPointToRay(Input.mousePosition), out hit, Mathf.Infinity))
+                    {
+                        if (hit.collider != null)
+                        {
+                            OnMouseOnEntity(hit);
+                        }
                     }
                 }
             }
 
-            if (Input.GetMouseButtonDown(0) && !isPointerOverGameObject)
-            {
-                if (!m_isSelecting)
-                {
-                    m_unitSelection.SetObserver(PlayerState.Team.Selectables);
-                    m_unitSelection.OnSelectionBegin(Input.mousePosition);
-                    m_isSelecting = true;
-                }
-            }
-
-            if (m_isSelecting)
-            {
-                m_unitSelection.OnSelectionProcess(mainCamera, Input.mousePosition);
-            }
-
-            if (Input.GetMouseButtonUp(0) && !isPointerOverGameObject)
-            {
-                RequestPosition = null;
-                m_unitSelection.OnSelectionEnd();
-                m_isSelecting = false;
-            }
+            UpdateSelection(isPointerOverGameObject);
         }
     }
 
