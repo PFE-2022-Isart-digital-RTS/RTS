@@ -193,8 +193,12 @@ public class RTSPlayerController : PlayerController
         ContextualMenuItem item = (ContextualMenuItem) availableItems.Find((ContextualMenuItemBase menuItem) => menuItem.ActionName == actionName);
         if (item == null)
             Debug.LogWarning("Player can't purchase item : item not listed in RTSPlayerController");
-        else 
-            item.OnPurchaseStart(validOptionComps);
+        else
+        {
+            ContextualMenuItem.InstructionGenerator instructionGenerator = (ContextualMenuItem.InstructionGenerator)item.GetInstructionGenerator();
+            instructionGenerator.OnPurchaseStart(validOptionComps);
+
+        }
 
     }
 
@@ -358,7 +362,7 @@ public class RTSPlayerController : PlayerController
             if (Input.GetMouseButtonDown(1))
             {
                 // TODO : Repair Context
-                RepairContext repairContext = new RepairContext() { CanBeRepairedComp = canBeRepairedComp };
+                RepairContext.Context repairContext = new RepairContext.Context() { CanBeRepairedComp = canBeRepairedComp };
                 repairContext.OnInvoked(m_selectedEntities);
                 return true;
             }
@@ -381,6 +385,7 @@ public class RTSPlayerController : PlayerController
                 MoveContext moveContext = new MoveContext();
                 moveContext.OnInvoked(m_selectedEntities);
                 RequestPosition.Invoke(hit.point);
+                RequestPosition = null;
                 return true;
             }
         }

@@ -11,22 +11,35 @@ public class BuildContext : ContextualMenuItemBase
     [SerializeField]
     private GameObject buildingToSpawnPrefab;
 
-    private NetworkObjectReference[] m_targets;
-
-    public override void OnInvoked(List<HaveOptionsComponent> targets)
+    public override void OnInvoked(List<HaveOptionsComponent> contextualizables)
     {
-        int length = targets.Count;
-        m_targets = new NetworkObjectReference[length];
-        for (int i = 0; i < length; i++)
-        {
-            m_targets[i] = targets[i].GetComponent<NetworkObject>();
-        }
-
-        RTSPlayerController.LocalInstance.RequestPosition += OnPositionIndicate;
+        new Context() { Data = this }.OnInvoked(contextualizables);
     }
 
-    void OnPositionIndicate(Vector3 position)
+    public new class Context : ContextualMenuItemBase.Context
     {
-        RTSPlayerController.LocalInstance.TryBuildServerRPC(m_targets, position, buildingToSpawnPrefab.name);
+        private NetworkObjectReference[] m_targets;
+        public new BuildContext Data
+        {
+            get => (BuildContext) data;
+            set => data = value;
+        }
+
+        public override void OnInvoked(List<HaveOptionsComponent> targets)
+        {
+            int length = targets.Count;
+            m_targets = new NetworkObjectReference[length];
+            for (int i = 0; i < length; i++)
+            {
+                m_targets[i] = targets[i].GetComponent<NetworkObject>();
+            }
+
+            RTSPlayerController.LocalInstance.RequestPosition += OnPositionIndicate;
+        }
+
+        void OnPositionIndicate(Vector3 position)
+        {
+            RTSPlayerController.LocalInstance.TryBuildServerRPC(m_targets, position, Data.buildingToSpawnPrefab.name);
+        }
     }
 }

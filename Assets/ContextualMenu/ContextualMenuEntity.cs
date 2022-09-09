@@ -1,3 +1,4 @@
+using ContextualMenuPackage;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -8,31 +9,46 @@ public class ContextualMenuEntity : ContextualMenuItem
 {
     [SerializeField] GameObject entityToSpawnPrefab;
 
-    public override void OnPurchaseStart(List<HaveOptionsComponent> purchasedFromList)
+    public override ContextualMenuItemBase.InstructionGenerator GetInstructionGenerator()
     {
-        HaveOptionsComponent purchasedFrom = purchasedFromList[0]; // TODO : function evaluating from which building the entity should be spawned from
-        OnPurchaseStart(purchasedFrom);
+        return new InstructionGenerator() { Data = this };
     }
 
-    public override void OnPurchaseStart(HaveOptionsComponent purchasedFrom)
+    // Server Side
+    public new class InstructionGenerator : ContextualMenuItem.InstructionGenerator
     {
-        ItemQueueComponent itemQueue = purchasedFrom.GetComponent<ItemQueueComponent>();
-        if (itemQueue == null)
+        public new ContextualMenuEntity Data
         {
-            Debug.LogError("Entity should have a ItemQueueComponent.");
-            return;
+            get => (ContextualMenuEntity)data;
+            set => data = value;
         }
 
-        itemQueue.AddItem(this);
-    }
+        public override void OnPurchaseStart(List<HaveOptionsComponent> purchasedFromList)
+        {
+            HaveOptionsComponent purchasedFrom = purchasedFromList[0]; // TODO : function evaluating from which building the entity should be spawned from
+            OnPurchaseStart(purchasedFrom);
+        }
+
+        public override void OnPurchaseStart(HaveOptionsComponent purchasedFrom)
+        {
+            ItemQueueComponent itemQueue = purchasedFrom.GetComponent<ItemQueueComponent>();
+            if (itemQueue == null)
+            {
+                Debug.LogError("Entity should have a ItemQueueComponent.");
+                return;
+            }
+
+            itemQueue.AddItem(this);
+        }
 
 
-    public override void OnPurchaseEnd(HaveOptionsComponent purchasedFrom)
-    {
-        // TODO : Spawn units around building
-        GameObject go = Instantiate(entityToSpawnPrefab, purchasedFrom.transform.position + new Vector3(5, 0, 0), Quaternion.identity);
-        go.GetComponent<NetworkObject>().Spawn();
-        TeamComponent teamComp = go.GetComponent<TeamComponent>();
-        teamComp.Team = purchasedFrom.GetComponent<TeamComponent>().Team;
+        public override void OnPurchaseEnd(HaveOptionsComponent purchasedFrom)
+        {
+            // TODO : Spawn units around building
+            GameObject go = Instantiate(Data.entityToSpawnPrefab, purchasedFrom.transform.position + new Vector3(5, 0, 0), Quaternion.identity);
+            go.GetComponent<NetworkObject>().Spawn();
+            TeamComponent teamComp = go.GetComponent<TeamComponent>();
+            teamComp.Team = purchasedFrom.GetComponent<TeamComponent>().Team;
+        }
     }
 }

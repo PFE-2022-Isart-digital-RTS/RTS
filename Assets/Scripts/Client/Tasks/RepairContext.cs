@@ -8,27 +8,35 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "RepairContext", menuName = "ScriptableObjects/RepairContext", order = 1)]
 public class RepairContext : ContextualMenuItemBase
 {
-    NetworkBehaviourReference canBeRepairedComp;
-
-    public CanBeRepairedComponent CanBeRepairedComp
+    public override void OnInvoked(List<HaveOptionsComponent> contextualizables)
     {
-        set
-        {
-            canBeRepairedComp = value;
-        }
+        new Context() { Data = this }.OnInvoked(contextualizables);
     }
 
-    private NetworkObjectReference[] m_targets;
-
-    public override void OnInvoked(List<HaveOptionsComponent> targets)
+    public new class Context : ContextualMenuItemBase.Context
     {
-        int length = targets.Count;
-        m_targets = new NetworkObjectReference[length];
-        for (int i = 0; i < length; i++)
+        NetworkBehaviourReference canBeRepairedComp;
+
+        public CanBeRepairedComponent CanBeRepairedComp
         {
-            m_targets[i] = targets[i].GetComponent<NetworkObject>();
+            set
+            {
+                canBeRepairedComp = value;
+            }
         }
 
-        RTSPlayerController.LocalInstance.TryRepairServerRPC(m_targets, canBeRepairedComp);
+        private NetworkObjectReference[] m_targets;
+
+        public override void OnInvoked(List<HaveOptionsComponent> targets)
+        {
+            int length = targets.Count;
+            m_targets = new NetworkObjectReference[length];
+            for (int i = 0; i < length; i++)
+            {
+                m_targets[i] = targets[i].GetComponent<NetworkObject>();
+            }
+
+            RTSPlayerController.LocalInstance.TryRepairServerRPC(m_targets, canBeRepairedComp);
+        }
     }
 }

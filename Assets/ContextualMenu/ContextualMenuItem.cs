@@ -11,7 +11,7 @@ public abstract class ContextualMenuItemBase : ScriptableObject, ITask<HaveOptio
     Sprite icon;
     public Sprite Icon { get => icon; }
 
-    public abstract void OnInvoked(List<HaveOptionsComponent> contextualizables);
+    //public abstract void OnInvoked(List<HaveOptionsComponent> contextualizables);
 
     public virtual string ItemName
     {
@@ -21,6 +21,32 @@ public abstract class ContextualMenuItemBase : ScriptableObject, ITask<HaveOptio
     public virtual string ActionName
     {
         get => "buy " + ItemName;
+    }
+
+    public abstract void OnInvoked(List<HaveOptionsComponent> contextualizables);
+
+    // Server Side
+    public abstract class InstructionGenerator
+    {
+        protected ContextualMenuItemBase data;
+        public ContextualMenuItemBase Data
+        {
+            get => data;
+            set => data = value;
+        }
+    }
+
+    // Client Side
+    public abstract class Context : ITask<HaveOptionsComponent> 
+    {
+        protected ContextualMenuItemBase data;
+        public ContextualMenuItemBase Data
+        {
+            get => data;
+            set => data = value;
+        }
+
+        public abstract void OnInvoked(List<HaveOptionsComponent> contextualizables);
     }
 }
 
@@ -34,40 +60,65 @@ public abstract class ContextualMenuItem : ContextualMenuItemBase
     public TeamResources FinalPrice { get => finalPrice; }
 
     public float buyDuration = 2f;
-
-    virtual public bool CanPurchaseFinalPrice(TeamState teamState)
+    public override void OnInvoked(List<HaveOptionsComponent> contextualizables)
     {
-        return teamState.Resources >= FinalPrice;
+        new Context() { Data = this }.OnInvoked(contextualizables);
     }
-    virtual public void PayFinalPrice(TeamState teamState)
+
+    public abstract ContextualMenuItemBase.InstructionGenerator GetInstructionGenerator();
+
+    // Server Side
+    public abstract new class InstructionGenerator : ContextualMenuItemBase.InstructionGenerator
     {
-        teamState.Resources -= FinalPrice;
+        public new ContextualMenuItem Data
+        {
+            get => (ContextualMenuItem)data;
+            set => data = value;
+        }
+
+        virtual public bool CanPurchaseFinalPrice(TeamState teamState)
+        {
+            return teamState.Resources >= Data.FinalPrice;
+        }
+        virtual public void PayFinalPrice(TeamState teamState)
+        {
+            teamState.Resources -= Data.FinalPrice;
+        }
+
+        public virtual void OnPurchaseStart(List<HaveOptionsComponent> purchasedFromList)
+        {
+            foreach (HaveOptionsComponent purchasedFrom in purchasedFromList)
+            {
+                OnPurchaseStart(purchasedFrom);
+            }
+        }
+
+        public virtual void OnPurchaseStart(HaveOptionsComponent purchasedFrom)
+        {
+            TeamComponent teamComp = purchasedFrom.GetComponent<TeamComponent>();
+            if (CanPurchaseFinalPrice(teamComp.Team)) // Can pay
+            {
+                teamComp.Team.Resources -= Data.FinalPrice;
+                OnPurchaseEnd(purchasedFrom);
+            }
+        }
+        public abstract void OnPurchaseEnd(HaveOptionsComponent purchasedFrom);
     }
 
     // Client Side
-    public override void OnInvoked(List<HaveOptionsComponent> contextualizables)
+    public new class Context : ContextualMenuItemBase.Context
     {
-        NetworkBehaviourReference[] behaviours = Array.ConvertAll(contextualizables.ToArray(), item => (NetworkBehaviourReference)item);
-        RTSPlayerController.LocalInstance.TryBuyItemServerRPC(ActionName, behaviours);
-    }
-
-    public virtual void OnPurchaseStart(List<HaveOptionsComponent> purchasedFromList)
-    {
-        foreach (HaveOptionsComponent purchasedFrom in purchasedFromList)
+        public new ContextualMenuItem Data
         {
-            OnPurchaseStart(purchasedFrom);
+            get => (ContextualMenuItem) data;
+            set => data = value;
+        }
+
+        public override void OnInvoked(List<HaveOptionsComponent> contextualizables)
+        {
+            NetworkBehaviourReference[] behaviours = Array.ConvertAll(contextualizables.ToArray(), item => (NetworkBehaviourReference)item);
+            RTSPlayerController.LocalInstance.TryBuyItemServerRPC(data.ActionName, behaviours);
         }
     }
-
-    public virtual void OnPurchaseStart(HaveOptionsComponent purchasedFrom)
-    {
-        TeamComponent teamComp = purchasedFrom.GetComponent<TeamComponent>();
-        if (CanPurchaseFinalPrice(teamComp.Team)) // Can pay
-        {
-            teamComp.Team.Resources -= FinalPrice;
-            OnPurchaseEnd(purchasedFrom);
-        }
-    }
-    public abstract void OnPurchaseEnd(HaveOptionsComponent purchasedFrom);
 }
 

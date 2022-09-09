@@ -5,13 +5,13 @@ using UnityEngine;
 [RequireComponent(typeof(ItemQueueComponent), typeof(TeamComponent))]
 public class ItemQueueComponent : MonoBehaviour
 {
-    List<ContextualMenuItem> items = new List<ContextualMenuItem>();
+    List<ContextualMenuItem.InstructionGenerator> items = new List<ContextualMenuItem.InstructionGenerator>();
     HaveOptionsComponent haveOptionsComp;
     TeamComponent team;
 
     float timer = 0f;
 
-    public void AddItem(ContextualMenuItem item)
+    public void AddItem(ContextualMenuItem.InstructionGenerator item)
     {
         items.Add(item);
     }
@@ -33,13 +33,13 @@ public class ItemQueueComponent : MonoBehaviour
         timer += Time.deltaTime;
         //TeamResources framePrice = currentItem.Price * Time.deltaTime;
 
-        while (items.Count > 0 && timer > items[0].buyDuration && items[0].CanPurchaseFinalPrice(team.Team))
+        while (items.Count > 0 && timer > items[0].Data.buyDuration && items[0].CanPurchaseFinalPrice(team.Team))
         {
-            ContextualMenuItem currentItem = items[0];
+            ContextualMenuItem.InstructionGenerator currentItem = items[0];
 
-            timer -= currentItem.buyDuration;
+            timer -= currentItem.Data.buyDuration;
             currentItem.PayFinalPrice(team.Team);
-            team.Team.Resources -= currentItem.FinalPrice;
+            team.Team.Resources -= currentItem.Data.FinalPrice;
 
             currentItem.OnPurchaseEnd(haveOptionsComp);
 
