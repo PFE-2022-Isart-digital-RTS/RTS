@@ -46,7 +46,7 @@ public class LifeComponent : NetworkBehaviour, ICanBeAttacked
         UpdateState();
         if (NetworkManager.Singleton == null || NetworkManager.Singleton.IsClient)
         {
-            GameObject progressBarGO = Instantiate(healthBar, new Vector3(0, 2.5f, 0), Quaternion.identity, transform);
+            GameObject progressBarGO = Instantiate(healthBar, gameObject.transform.position + new Vector3(0, 2.5f, 0), Quaternion.identity, transform);
             IProgressBar progressBar = progressBarGO.GetComponent<IProgressBar>();
             progressBar.value = lifeRatio;
             repLife.OnValueChanged += (float oldValue, float newValue) =>
