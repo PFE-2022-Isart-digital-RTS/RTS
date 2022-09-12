@@ -447,6 +447,14 @@ public class RTSPlayerController : PlayerController
         }
     }
 
+    float zoomScale = 300;
+
+    void UpdateZoom()
+    {
+
+        mainCamera.transform.position += Input.mouseScrollDelta.y * zoomScale * mainCamera.transform.forward * Time.deltaTime;
+    }
+
     private void Update()
     {
         if (!IsOwner)
@@ -488,6 +496,7 @@ public class RTSPlayerController : PlayerController
             }
 
             UpdateSelection(isPointerOverGameObject);
+            UpdateZoom();
         }
     }
 
