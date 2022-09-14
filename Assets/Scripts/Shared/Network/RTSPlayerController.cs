@@ -455,6 +455,33 @@ public class RTSPlayerController : PlayerController
         mainCamera.transform.position += Input.mouseScrollDelta.y * zoomScale * mainCamera.transform.forward * Time.deltaTime;
     }
 
+    void UpdateMovement()
+    {
+        Vector3 deltaMov = Vector3.zero;
+
+        if (Input.GetKey(KeyCode.W))
+        {
+            deltaMov += new Vector3(0,0,1);
+        }
+
+        if (Input.GetKey(KeyCode.S))
+        {
+            deltaMov += new Vector3(0, 0, -1);
+        }
+
+        if (Input.GetKey(KeyCode.A))
+        {
+            deltaMov += new Vector3(-1, 0, 0);
+        }
+
+        if (Input.GetKey(KeyCode.D))
+        {
+            deltaMov += new Vector3(1, 0, 0);
+        }
+
+        mainCamera.transform.position += deltaMov * Time.deltaTime * 20;
+    }
+
     private void Update()
     {
         if (!IsOwner)
@@ -497,6 +524,7 @@ public class RTSPlayerController : PlayerController
 
             UpdateSelection(isPointerOverGameObject);
             UpdateZoom();
+            UpdateMovement();
         }
     }
 
