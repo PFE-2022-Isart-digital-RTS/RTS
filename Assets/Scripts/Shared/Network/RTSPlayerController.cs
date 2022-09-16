@@ -180,6 +180,31 @@ public class RTSPlayerController : PlayerController
 
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void TryAttackEntityServerRPC(NetworkObjectReference[] unitsReferences, NetworkObjectReference entity, ServerRpcParams serverRpcParams = default)
+    {
+        // TODO : verify if the call is correct, depending on the client id calling this function
+        //ulong playerID = serverRpcParams.Receive.SenderClientId;
+
+        // Retrieve the list of units
+        List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
+
+        Squad squad = MakeNewSquad(units);
+
+        NetworkObject toAttack;
+        if (entity.TryGet(out toAttack))
+        {
+            LifeComponent lifeComponent = toAttack.GetComponent<LifeComponent>();
+            squad.MoveTo(lifeComponent.transform.position);
+
+            squad.AddAttack(lifeComponent);
+        }
+        else
+        {
+            Debug.LogError("Invalid component through rpc.");
+        }
+
+    }
 
     [ServerRpc(RequireOwnership = false)]
     public void TryBuyItemServerRPC(string actionName, NetworkBehaviourReference[] contextualizables, ServerRpcParams serverRpcParams = default)
@@ -233,6 +258,7 @@ public class RTSPlayerController : PlayerController
     private GameObject buyItemButtonPrefab;
 
     public Action<Vector3> RequestPosition { get; set; }
+    public Action<GameObject> RequestEntity { get; set; }
 
     public List<ContextualMenuItemBase> availableItems = new List<ContextualMenuItemBase>();
 
@@ -347,6 +373,10 @@ public class RTSPlayerController : PlayerController
             if (Input.GetMouseButtonDown(1))
             {
                 // TODO : Attack Context
+                AttackEntityContext.Context attackEntity = new AttackEntityContext.Context() { };
+                attackEntity.OnInvoked(m_selectedEntities);
+                RequestEntity.Invoke(lifeComp.gameObject);
+                RequestEntity = null;
                 return true;
             }
         }

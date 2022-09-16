@@ -35,6 +35,12 @@ class RepairSquadInstruction : SquadInstruction
         inConstructionComp.onConstructionEnd.RemoveListener(OnConstructionEnd);
     }
 
+    public override void OnEnd()
+    {
+        base.OnEnd();
+        inConstructionComp.onConstructionEnd.RemoveListener(OnConstructionEnd);
+    }
+
     public override void OnUnitStart(GameObject unit)
     {
         CanRepairComponent canConstructComp = unit.GetComponent<CanRepairComponent>();

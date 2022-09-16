@@ -46,6 +46,17 @@ public abstract class ContextualMenuItemBase : ScriptableObject, ITask<HaveOptio
             set => data = value;
         }
 
+        public NetworkObjectReference[] HaveOptionsToNetworkRefs(List<HaveOptionsComponent> targets)
+        {
+            int length = targets.Count;
+            NetworkObjectReference[] targetRefs = new NetworkObjectReference[length];
+            for (int i = 0; i < length; i++)
+            {
+                targetRefs[i] = targets[i].GetComponent<NetworkObject>();
+            }
+            return targetRefs;
+        }
+
         public abstract void OnInvoked(List<HaveOptionsComponent> contextualizables);
     }
 }

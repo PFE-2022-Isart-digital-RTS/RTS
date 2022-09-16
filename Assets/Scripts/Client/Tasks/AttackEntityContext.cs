@@ -5,12 +5,9 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "BuildContext", menuName = "ScriptableObjects/BuildContext", order = 1)]
-public class BuildContext : ContextualMenuItemBase
+[CreateAssetMenu(fileName = "AttackEntityContext", menuName = "ScriptableObjects/AttackEntityContext", order = 1)]
+public class AttackEntityContext : ContextualMenuItemBase
 {
-    [SerializeField]
-    private GameObject buildingToSpawnPrefab;
-
     public override void OnInvoked(List<HaveOptionsComponent> contextualizables)
     {
         new Context() { Data = this }.OnInvoked(contextualizables);
@@ -19,9 +16,9 @@ public class BuildContext : ContextualMenuItemBase
     public new class Context : ContextualMenuItemBase.Context
     {
         private NetworkObjectReference[] m_targets;
-        public new BuildContext Data
+        public new AttackEntityContext Data
         {
-            get => (BuildContext) data;
+            get => (AttackEntityContext)data;
             set => data = value;
         }
 
@@ -29,12 +26,12 @@ public class BuildContext : ContextualMenuItemBase
         {
             m_targets = HaveOptionsToNetworkRefs(targets);
 
-            RTSPlayerController.LocalInstance.RequestPosition += OnPositionIndicate;
+            RTSPlayerController.LocalInstance.RequestEntity += OnEntityIndicate;
         }
 
-        void OnPositionIndicate(Vector3 position)
+        void OnEntityIndicate(GameObject entity)
         {
-            RTSPlayerController.LocalInstance.TryBuildServerRPC(m_targets, position, Data.buildingToSpawnPrefab.name);
+            RTSPlayerController.LocalInstance.TryAttackEntityServerRPC(m_targets, entity);
         }
     }
 }

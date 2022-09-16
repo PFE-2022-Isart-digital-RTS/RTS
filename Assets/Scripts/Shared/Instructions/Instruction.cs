@@ -47,6 +47,12 @@ public class InstructionQueue : InstructionRunner
     }
 }
 
+public class SquadInstructionGraph : InstructionRunner
+{
+    InstructionWithNext lastTask = null;
+
+}
+
 public class InstructionRunner
 {
     protected Instruction currentInstruction;

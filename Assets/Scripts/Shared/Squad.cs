@@ -86,4 +86,9 @@ public class Squad : MonoBehaviour
     {
         instructionQueue.AddInstruction(new RepairSquadInstruction { squad = this, inConstructionComp = canBeRepaired });
     }
+
+    public void AddAttack(LifeComponent lifeComponent)
+    {
+        instructionQueue.AddInstruction(new AttackSquadInstruction { squad = this, attackedComp = lifeComponent });
+    }
 }

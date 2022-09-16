@@ -6,10 +6,10 @@ using UnityEngine.Events;
 
 public interface ICanBeAttacked
 {
-    void OnAttacked(ICanAttack attacker);
+    void OnAttacked(WeaponComponent attacker, float nbDamages);
 }
 
-public class LifeComponent : NetworkBehaviour, ICanBeAttacked
+public class LifeComponent : NetworkBehaviour
 {
     [SerializeField]
     NetworkVariable<float> repLife = new NetworkVariable<float>(10f);
@@ -73,14 +73,9 @@ public class LifeComponent : NetworkBehaviour, ICanBeAttacked
             state = State.IsDamaged;
     }
 
-    public void OnAttacked(ICanAttack attacker)
+    public void DealMeleeDamages(WeaponComponent attacker, float nbDamages)
     {
-        switch (attacker)
-        {
-            case AttackComponent attackComp:
-                DealDamages(attackComp.nbDamages);
-                break;
-        }
+        DealDamages(nbDamages);
     }
 
     public void DealDamages(float damages)
@@ -91,6 +86,7 @@ public class LifeComponent : NetworkBehaviour, ICanBeAttacked
             life = 0f;
             state = State.IsDead;
             OnNoLife?.Invoke();
+            Destroy(gameObject); 
         }
         else
             state = State.IsDamaged;

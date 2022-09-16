@@ -29,12 +29,7 @@ public class RepairContext : ContextualMenuItemBase
 
         public override void OnInvoked(List<HaveOptionsComponent> targets)
         {
-            int length = targets.Count;
-            m_targets = new NetworkObjectReference[length];
-            for (int i = 0; i < length; i++)
-            {
-                m_targets[i] = targets[i].GetComponent<NetworkObject>();
-            }
+            m_targets = HaveOptionsToNetworkRefs(targets);
 
             RTSPlayerController.LocalInstance.TryRepairServerRPC(m_targets, canBeRepairedComp);
         }
