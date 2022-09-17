@@ -30,16 +30,20 @@ public class ItemQueueComponent : MonoBehaviour
             return;
         }
 
+        TeamState teamState = (TeamState) team.Team;
+        if (teamState == null)
+            return;
+
         timer += Time.deltaTime;
         //TeamResources framePrice = currentItem.Price * Time.deltaTime;
 
-        while (items.Count > 0 && timer > items[0].Data.buyDuration && items[0].CanPurchaseFinalPrice(team.Team))
+        while (items.Count > 0 && timer > items[0].Data.buyDuration && items[0].CanPurchaseFinalPrice(teamState))
         {
             ContextualMenuItem.InstructionGenerator currentItem = items[0];
 
             timer -= currentItem.Data.buyDuration;
-            currentItem.PayFinalPrice(team.Team);
-            team.Team.Resources -= currentItem.Data.FinalPrice;
+            currentItem.PayFinalPrice(teamState);
+            teamState.Resources -= currentItem.Data.FinalPrice;
 
             currentItem.OnPurchaseEnd(haveOptionsComp);
 

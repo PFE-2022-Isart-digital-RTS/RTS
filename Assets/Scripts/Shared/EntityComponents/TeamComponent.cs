@@ -6,10 +6,10 @@ using UnityEngine;
 
 public class TeamComponent : NetworkBehaviour
 {
-    public TeamState team;
+    public TeamStateBase team;
 
     [HideInInspector]
-    public TeamState Team
+    public TeamStateBase Team
     {
         set
         {
@@ -30,7 +30,7 @@ public class TeamComponent : NetworkBehaviour
     [ClientRpc]
     public void SetTeam_ClientRpc(NetworkBehaviourReference newTeamRef)
     {
-        if (newTeamRef.TryGet(out TeamState newTeam))
+        if (newTeamRef.TryGet(out TeamStateBase newTeam))
         {
             Team = newTeam;
         }
@@ -47,7 +47,7 @@ public class EntityEditor : Editor
         TeamComponent teamComponent = (TeamComponent)target;
 
         // Get value before change
-        TeamState previousValue = teamComponent.Team;
+        TeamStateBase previousValue = teamComponent.Team;
 
         // Make all the public and serialized fields visible in Inspector
         base.OnInspectorGUI();
@@ -55,7 +55,7 @@ public class EntityEditor : Editor
         // Load changed values
         serializedObject.Update();
 
-        TeamState newValue = ((TeamComponent)serializedObject.targetObject).Team;
+        TeamStateBase newValue = ((TeamComponent)serializedObject.targetObject).Team;
 
         // Check if value has changed
         if (Application.isPlaying && previousValue != newValue)

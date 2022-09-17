@@ -102,7 +102,7 @@ public class RTSGameMode : NetworkBehaviour
                 }
             };
             spectatorController.PlayerState = spectatorState;
-            spectatorController.SetLocalInstance_ClientRpc(clientRpcParams);
+            spectatorController.SetLocalInstance_ClientRpc(spectatorState, clientRpcParams);
 
             spectatorControllers.Add(spectatorController);
         }
@@ -121,22 +121,7 @@ public class RTSGameMode : NetworkBehaviour
         // GameState
         gameState = Instantiate(gameStatePrefab).GetComponent<RTSGameState>();
         gameState.GetComponent<NetworkObject>().Spawn();
-        gameState.teams = teams;
-
-
-        //for (int i = 0; i < gameStartData.nbTeams; i++)
-        //{
-        //    // TeamState
-        //    TeamState teamState = Instantiate(teamStatePrefab).GetComponent<TeamState>();
-        //    {
-        //        teamState.gameObject.name = "TeamState " + i;
-
-        //        NetworkObject teamStateNetwork = teamState.GetComponent<NetworkObject>();
-        //        teamStateNetwork.Spawn();
-
-        //        teams.Add(teamState);
-        //    }
-        //}
+        gameState.playerTeams = teams;
 
         for (int i = 0; i < gameStartData.playersStartData.Count; i++)
         {
@@ -170,7 +155,7 @@ public class RTSGameMode : NetworkBehaviour
                     }
                 };
                 playerController.PlayerState = playerState;
-                playerController.SetLocalInstance_ClientRpc(clientRpcParams);
+                playerController.SetLocalInstance_ClientRpc(playerState, clientRpcParams);
 
                 playerControllers.Add(playerController);
             }
@@ -185,8 +170,10 @@ public class RTSGameMode : NetworkBehaviour
 
         foreach (TeamState team in teams)
         {
-            team.enabled = true;
-            team.SetEnable_ClientRpc(true);
+            foreach (TeamComponent e in GameObject.FindObjectsOfType<TeamComponent>())
+            {
+                e.Team.RegisterUnit(e);
+            }
         }
     }
 }

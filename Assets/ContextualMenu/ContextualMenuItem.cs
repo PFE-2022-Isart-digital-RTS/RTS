@@ -107,9 +107,22 @@ public abstract class ContextualMenuItem : ContextualMenuItemBase
         public virtual void OnPurchaseStart(HaveOptionsComponent purchasedFrom)
         {
             TeamComponent teamComp = purchasedFrom.GetComponent<TeamComponent>();
-            if (CanPurchaseFinalPrice(teamComp.Team)) // Can pay
+            if (teamComp == null)
             {
-                teamComp.Team.Resources -= Data.FinalPrice;
+                Debug.LogError("Entity should have a TeamComponent");
+                return;
+            }
+
+            TeamState teamState = (TeamState)teamComp.Team;
+            if (teamState == null)
+            {
+                Debug.LogError("TeamStateBase should be a TeamState to buy something");
+                return;
+            }
+
+            if (CanPurchaseFinalPrice(teamState)) // Can pay
+            {
+                teamState.Resources -= Data.FinalPrice;
                 OnPurchaseEnd(purchasedFrom);
             }
         }

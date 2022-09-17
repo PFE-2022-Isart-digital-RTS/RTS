@@ -3,11 +3,15 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Events;
 
 // Contains server data that is player specific
 public class RTSPlayerState : PlayerState
 {
     NetworkVariable<NetworkBehaviourReference> teamRef = new NetworkVariable<NetworkBehaviourReference>();
+
+    // void(Team oldTeam, Team newTeam)
+    public UnityEvent<TeamState, TeamState> onTeamChange = new UnityEvent<TeamState, TeamState>();
 
     public TeamState Team
     {
@@ -18,12 +22,14 @@ public class RTSPlayerState : PlayerState
                 return teamState;
             }
 
-            Debug.LogError("Invalid team ref");
+            //Debug.LogError("Invalid team ref");
             return null;
         }
         set
         {
+            TeamState prevTeamState = Team;
             teamRef.Value = value;
+            onTeamChange?.Invoke(prevTeamState, value);
         }
     }
 }

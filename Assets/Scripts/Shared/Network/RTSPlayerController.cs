@@ -18,6 +18,9 @@ public class RTSPlayerController : PlayerController
     public new RTSPlayerState PlayerState { get => (RTSPlayerState) base.PlayerState; set => base.PlayerState = value; }
     public static new RTSPlayerController LocalInstance { get => (RTSPlayerController)PlayerController.LocalInstance; }
 
+    List<HaveOptionsComponent> selectables = new List<HaveOptionsComponent>();
+
+    #region Utility
     List<T> NetBehavioursToComponents<T>(NetworkBehaviourReference[] netBehaviours) where T : NetworkBehaviour
     {
         List<T> units = new List<T>(netBehaviours.Length);
@@ -48,6 +51,9 @@ public class RTSPlayerController : PlayerController
         return units;
     }
 
+    #endregion
+
+    #region Squads
     Squad GetSquad(List<GameObject> units)
     {
         foreach (Squad squad in PlayerState.Team.Squads)
@@ -101,6 +107,9 @@ public class RTSPlayerController : PlayerController
 
         return squad;
     }
+    #endregion
+
+    #region ServerActions
 
     // TODO : Set ownership ?
     // However, if two players are in the same team and they can move each other's units,
@@ -227,21 +236,7 @@ public class RTSPlayerController : PlayerController
 
     }
 
-    // List<ICanBeSelected> selectedEntities;
-
-    // TODO : UI
-
-
-    //void OnEntitySpawned(Entity newEntity)
-    //{
-    //    var m = newEntity.GetComponent<LifeComponent>();
-    //    if (m != null)
-    //    {
-    //        HealthBar health = Instantiate(HealthBar3D, m.transform);
-    //        health.life = m.lifeRatio;
-    //    }
-    //}
-
+#endregion
 
     private SharedContextualMenu<HaveOptionsComponent> m_contextualMenu = new SharedContextualMenu<HaveOptionsComponent>();
 
@@ -299,6 +294,20 @@ public class RTSPlayerController : PlayerController
             else
                 Debug.LogWarning("null element in RTSPlayerController : availableItems");
         }
+    }
+
+    public void OnUnitRegistered(TeamComponent unit)
+    {
+        HaveOptionsComponent haveOptionsComp = unit.GetComponent<HaveOptionsComponent>();
+        if (haveOptionsComp != null && !selectables.Contains(haveOptionsComp))
+            selectables.Add(haveOptionsComp);
+    }
+
+    public void OnUnitUnregistered(TeamComponent unit)
+    {
+        HaveOptionsComponent haveOptionsComp = unit.GetComponent<HaveOptionsComponent>();
+        if (haveOptionsComp != null)
+            selectables.Remove(haveOptionsComp);
     }
 
     void OnContextualMenuButtonPreClick()
@@ -360,6 +369,23 @@ public class RTSPlayerController : PlayerController
                 }
             }
         };
+
+        PlayerState.onTeamChange.AddListener((TeamState oldTeam, TeamState newTeam) =>
+        {
+            if (oldTeam != null)
+            {
+                oldTeam.onUnitRegistered.RemoveListener(OnUnitRegistered);
+                oldTeam.onUnitUnregistered.RemoveListener(OnUnitUnregistered);
+            }
+
+            if (newTeam != null)
+            {
+                newTeam.onUnitRegistered.AddListener(OnUnitRegistered);
+                newTeam.onUnitUnregistered.AddListener(OnUnitUnregistered);
+            }
+        });
+        PlayerState.Team.onUnitRegistered.AddListener(OnUnitRegistered);
+        PlayerState.Team.onUnitUnregistered.AddListener(OnUnitUnregistered);
     }
 
     #region Mouse
@@ -458,7 +484,7 @@ public class RTSPlayerController : PlayerController
         {
             if (!m_isSelecting)
             {
-                m_unitSelection.SetObserver(PlayerState.Team.Selectables);
+                m_unitSelection.SetObserver(selectables);
                 m_unitSelection.OnSelectionBegin(Input.mousePosition);
                 m_isSelecting = true;
             }

@@ -5,15 +5,18 @@ using UnityEngine;
 
 public class PlayerController : NetworkBehaviour
 {
-    NetworkVariable<NetworkBehaviourReference> playerStateRef = new NetworkVariable<NetworkBehaviourReference>();
+    //NetworkVariable<NetworkBehaviourReference> playerStateRef = new NetworkVariable<NetworkBehaviourReference>();
+    PlayerState playerState;
 
-    public PlayerState PlayerState { get => (PlayerState) playerStateRef.Value; set => playerStateRef.Value = value; }
+    //public PlayerState PlayerState { get => (PlayerState) playerStateRef.Value; set => playerStateRef.Value = value; }
+    public PlayerState PlayerState { get => playerState; set => playerState = value; }
     public static PlayerController LocalInstance { get; private set; }
 
     [ClientRpc()]
-    public void SetLocalInstance_ClientRpc(ClientRpcParams clientRpcParams = default)
+    public void SetLocalInstance_ClientRpc(NetworkBehaviourReference associatedPlayerState, ClientRpcParams clientRpcParams = default)
     {
         LocalInstance = this;
+        playerState = (PlayerState) associatedPlayerState;
     }
 
     public void SetEnable(bool isEnabled, ClientRpcParams clientRpcParams = default)

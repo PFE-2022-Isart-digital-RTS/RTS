@@ -12,7 +12,7 @@ public class RTSGameState : NetworkBehaviour
     public List<RTSSpectatorState> spectatorStates;
 
     [HideInInspector]
-    public List<TeamState> teams;
+    public List<TeamState> playerTeams;
 
     public static RTSGameState Instance { get; set; }
 
