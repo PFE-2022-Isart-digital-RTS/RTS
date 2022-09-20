@@ -9,10 +9,18 @@ public class MeleeWeapon : WeaponComponent
     public float attackHitRatio = 0.5f; // the enemy will receive damages at attackSpeed * attackHitRatio seconds after the start
 
     Coroutine attackCoroutine;
+    LifeComponent target;
 
     public override void StartAttack(LifeComponent target)
     {
-        attackCoroutine = StartCoroutine(Attack(target));
+        StopAttack();
+
+        this.target = target;
+        if (target != null)
+        {
+            target.OnNoLife.AddListener(StopAttack);
+            attackCoroutine = StartCoroutine(Attack(target));
+        }
     }
 
     public IEnumerator Attack(LifeComponent target)
@@ -23,13 +31,15 @@ public class MeleeWeapon : WeaponComponent
 
         yield return new WaitForSeconds((1f - attackHitRatio) * attackSpeed);
 
-
         attackCoroutine = StartCoroutine(Attack(target));
         yield break;
     }
 
     public override void StopAttack()
     {
+        if (target != null)
+            target.OnNoLife.RemoveListener(StopAttack);
+
         if (attackCoroutine != null)
             StopCoroutine(attackCoroutine);
     }

@@ -273,8 +273,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   repLife:
-    m_InternalValue: 1
-  maxLife: 10
+    m_InternalValue: 0
+  maxLife: 3
   OnNoLife:
     m_PersistentCalls:
       m_Calls: []

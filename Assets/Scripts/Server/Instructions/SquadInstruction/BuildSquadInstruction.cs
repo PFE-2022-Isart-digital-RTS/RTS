@@ -3,26 +3,43 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-class BuildSquadInstruction : SquadInstruction
+class BuildSquadInstruction : SquadInstructionWithMove
 {
     public Vector3 targetPosition;
     public GameObject buildingPrefab;
+    public TeamState team;
 
-    public override bool CanDoInstruction()
-    {
-        return true;
-    }
+    protected override Vector3 TargetPos { get; set; }
 
-    public override void OnStart()
+    public GameObject SpawnBuilding()
     {
         GameObject go = GameObject.Instantiate(buildingPrefab, targetPosition, Quaternion.identity);
-
         go.GetComponent<NetworkObject>().Spawn();
+        go.GetComponent<TeamComponent>().Team = team;
 
-        go.GetComponent<TeamComponent>().Team = squad.Team;
+        return go;
+    }
 
-        next = new RepairSquadInstruction { squad = squad, inConstructionComp = go.GetComponent<CanBeRepairedComponent>(), next = next };
+    protected override void OnStart()
+    {
+        TargetPos = targetPosition;
 
-        RunNextInstruction();
+        base.OnStart();
+    }
+
+    protected override void OnUnitStart(GameObject unit)
+    {
+        base.OnUnitStart(unit);
+
+        GameObject go = SpawnBuilding();
+
+        RepairSquadInstruction repairSquadInstruction;
+        repairSquadInstruction = new RepairSquadInstruction { inConstructionComp = go.GetComponent<CanBeRepairedComponent>(), Next = Next };
+        Next = repairSquadInstruction;
+
+        moveSquadInstruction.Next = Next;
+        repairSquadInstruction.moveSquadInstruction = moveSquadInstruction;
+
+        End();
     }
 }

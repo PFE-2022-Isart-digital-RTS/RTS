@@ -53,63 +53,12 @@ public class RTSPlayerController : PlayerController
 
     #endregion
 
-    #region Squads
-    Squad GetSquad(List<GameObject> units)
-    {
-        foreach (Squad squad in PlayerState.Team.Squads)
-        {
-            HashSet<GameObject> unitsSet = new HashSet<GameObject>(units);
-            HashSet<GameObject> squadUnitsSet = new HashSet<GameObject>(squad.squadUnits);
-            bool isEqual = unitsSet.SetEquals(squadUnitsSet);
-            if (isEqual)
-            {
-                return squad;
-            }
-        }
-
-        return null;
-    }
-
-    Squad GetOrAddSquad(List<GameObject> units)
-    {
-        Squad squad = GetSquad(units);
-        if (squad == null)
-        {
-            GameObject squadGO = new GameObject();
-            squadGO.name = "Squad";
-
-            squad = squadGO.AddComponent<Squad>();
-            squad.squadUnits = units;
-            squad.Team = PlayerState.Team;
-        }
-        return squad;
-    }
-
-    Squad MakeNewSquad(List<GameObject> units)
-    {
-        GameObject squadGO = new GameObject();
-        squadGO.name = "Squad";
-
-        Squad squad = squadGO.AddComponent<Squad>();
-        squad.Team = PlayerState.Team;
-
-        foreach (GameObject unit in units)
-        {
-            if (PlayerState.Team.UnitToSquadMap.TryGetValue(unit, out Squad oldSquad))
-            {
-                oldSquad.RemoveUnit(unit);
-            }
-
-            PlayerState.Team.UnitToSquadMap[unit] = squad;
-        }
-
-        squad.squadUnits = units;
-
-        return squad;
-    }
-    #endregion
-
     #region ServerActions
+
+    public void AssignInstruction(IEnumerable<GameObject> units, SquadInstruction newInstruction)
+    {
+        RTSGameMode.Instance.instructionsManager.AssignInstruction(units, newInstruction);
+    }
 
     // TODO : Set ownership ?
     // However, if two players are in the same team and they can move each other's units,
@@ -123,9 +72,7 @@ public class RTSPlayerController : PlayerController
         // Retrieve the list of units
         List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
 
-        Squad squad = MakeNewSquad(units);
-
-        squad.MoveTo(targetPosition);
+        AssignInstruction(units, new MoveSquadInstruction { targetPosition = targetPosition });
     }
 
     // TODO : Set ownership ?
@@ -140,7 +87,7 @@ public class RTSPlayerController : PlayerController
         // Retrieve the list of units
         List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
 
-        MakeNewSquad(units);
+        AssignInstruction(units, null);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -152,15 +99,18 @@ public class RTSPlayerController : PlayerController
         // Retrieve the list of units
         List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
 
-        Squad squad = MakeNewSquad(units);
-
-        squad.MoveTo(targetPosition);
-
         GameObject prefabBuildingToSpawn = PlayerState.Team.availableBuildings.Find((GameObject go) => go.name == buildingName);
         if (prefabBuildingToSpawn == null)
             Debug.LogWarning("Prefab not found in the team state's available buildings : hacks?");
         else
-            squad.AddBuild(targetPosition, prefabBuildingToSpawn);
+        {
+            AssignInstruction(units, new BuildSquadInstruction 
+            { 
+                targetPosition = targetPosition, 
+                buildingPrefab = prefabBuildingToSpawn, 
+                team = PlayerState.Team 
+            });
+        }
     }
 
 
@@ -173,14 +123,10 @@ public class RTSPlayerController : PlayerController
         // Retrieve the list of units
         List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
 
-        Squad squad = MakeNewSquad(units);
-
         CanBeRepairedComponent canBeRepaired;
         if (canBeRepairedComp.TryGet(out canBeRepaired))
         {
-            squad.MoveTo(canBeRepaired.transform.position);
-        
-            squad.AddRepair(canBeRepaired);
+            AssignInstruction(units, new RepairSquadInstruction { inConstructionComp = canBeRepaired });
         }
         else
         {
@@ -198,15 +144,13 @@ public class RTSPlayerController : PlayerController
         // Retrieve the list of units
         List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
 
-        Squad squad = MakeNewSquad(units);
-
         NetworkObject toAttack;
         if (entity.TryGet(out toAttack))
         {
             LifeComponent lifeComponent = toAttack.GetComponent<LifeComponent>();
-            squad.MoveTo(lifeComponent.transform.position);
 
-            squad.AddAttack(lifeComponent);
+            // TODO : MoveToTargetSquadInstruction
+            AssignInstruction(units, new AttackSquadInstruction { attackedComp = lifeComponent });
         }
         else
         {

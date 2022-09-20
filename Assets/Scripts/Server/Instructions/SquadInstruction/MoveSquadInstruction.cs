@@ -2,31 +2,78 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-class MoveSquadInstruction : SquadInstruction
+public abstract class SquadInstructionWithMove : SquadInstruction
+{
+    public MoveSquadInstruction moveSquadInstruction;
+
+    protected abstract Vector3 TargetPos { get; set; }
+
+    protected override void OnStart()
+    {
+        base.OnStart();
+
+        if (moveSquadInstruction == null)
+        {
+            moveSquadInstruction = new MoveSquadInstruction
+            {
+                targetPosition = TargetPos,
+                Next = this
+            };
+        }
+    }
+
+    public override void UnitStart(GameObject unit)
+    {
+        units.Add(unit);
+
+        if (HasEnded)
+        {
+            RunNextInstruction(unit);
+            return;
+        }
+
+        TryStart();
+
+        if (TryMoveTo(unit))
+            return;
+
+        OnUnitStart(unit);            
+    }
+
+    public bool TryMoveTo(GameObject unit)
+    {
+        if (!moveSquadInstruction.IsInRange(unit))
+        {
+            instructionManager.AssignInstruction(unit, moveSquadInstruction);
+            return true;
+        }
+        return false;
+    }
+}
+
+public class MoveSquadInstruction : SquadInstruction
 {
     public Vector3 targetPosition;
     public float stopDistSqr = 3 * 3;
+    public float distMin = 5;
 
-    public override bool CanDoInstruction()
+    protected override void OnStart()
     {
-        return true;
-    }
-
-    public override void OnStart()
-    {
-        base.OnStart();
         UpdatePositions();
     }
 
-    public override void OnUnitStart(GameObject unit)
+    protected override void OnUnitStart(GameObject unit)
     {
+        base.OnUnitStart(unit);
+
         MoveComponent moveComponent = unit.GetComponent<MoveComponent>();
         Instruction moveInstruction = new MoveInstruction { moveComponent = moveComponent, targetLocation = unit.transform.position };
         // to modify, the instruction should be added to the HaveInstruction component
         moveComponent.moveInstruction = moveInstruction;
+        UpdatePositions();
     }
 
-    public override void OnUnitStop(GameObject unit)
+    protected override void OnUnitStop(GameObject unit)
     {
         MoveComponent moveComponent = unit.GetComponent<MoveComponent>();
 
@@ -34,9 +81,13 @@ class MoveSquadInstruction : SquadInstruction
 
         // to modify, the instruction should be added to the HaveInstruction component
         moveComponent.moveInstruction = null;
+        
+        base.OnUnitStop(unit);
+
+        UpdatePositions();
     }
 
-    public override void OnEnd()
+    protected override void OnEnd()
     {
         OnStop(); // TODO : not call this function?
     }
@@ -44,7 +95,7 @@ class MoveSquadInstruction : SquadInstruction
     void UpdatePositions()
     {
         Vector3 OffsetFromStart;
-        int unitCount = squad.squadUnits.Count;
+        int unitCount = units.Count;
         float unitCountSqrt = Mathf.Sqrt(unitCount);
         int NumberOfCharactersRow = (int)unitCountSqrt;
         int NumberOfCharactersColumn = (int)unitCountSqrt + unitCount - NumberOfCharactersRow * NumberOfCharactersRow;
@@ -59,16 +110,15 @@ class MoveSquadInstruction : SquadInstruction
             //int c = i % NumberOfCharactersRow;
             //Vector3 offset = new Vector3(r * Distance, 0f, c * Distance);
             //Vector3 pos = targetPosition + offset - OffsetFromStart;
-            GameObject unit = squad.squadUnits[i];
+            GameObject unit = units[i];
             Vector3 finalLoc = unit.transform.position + (targetPosition - unit.transform.position).normalized * 5;
 
             //Vector3 offset = Vector3.zero;
-            foreach (GameObject otherUnit in squad.squadUnits)  
+            foreach (GameObject otherUnit in units)  
             {
                 if (unit == otherUnit)
                     continue;
 
-                float distMin = 3;
                 float dist = Vector3.Distance(otherUnit.transform.position, unit.transform.position);
                 if (dist < distMin)
                 {
@@ -79,6 +129,7 @@ class MoveSquadInstruction : SquadInstruction
                         n.x = rand.x;
                         n.z = rand.y;
                     }
+                    n.y = 0;
                     finalLoc -= n * (distMin - dist);
                 }
 
@@ -91,13 +142,32 @@ class MoveSquadInstruction : SquadInstruction
         }
     }
 
+    public Vector3 GetCenter()
+    {
+        Vector3 center = new Vector3();
+        foreach (GameObject moveComp in units)
+        {
+            center += moveComp.transform.position;
+        }
+        return center / units.Count;
+    }
+
+    public bool IsInRange(GameObject unit)
+    {
+        return (unit.transform.position - targetPosition).sqrMagnitude < stopDistSqr;
+    }
+
     public override void OnUpdate()
     {
         UpdatePositions();
 
-        if ((squad.GetCenter() - targetPosition).sqrMagnitude < stopDistSqr)
-        {
-            RunNextInstruction();
+        List<GameObject> unitsCopy = new List<GameObject>(units);
+        foreach (GameObject unit in unitsCopy)
+        { 
+            if (IsInRange(unit))
+            {
+                RunNextInstruction(unit); 
+            }
         }
     }
 }

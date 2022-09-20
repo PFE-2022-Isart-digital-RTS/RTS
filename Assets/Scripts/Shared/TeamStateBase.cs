@@ -8,7 +8,6 @@ using UnityEngine.Events;
 // Contains minimal server data that is team specific
 // Contains : 
 // - The units of the team
-// - The squads of the units 
 // - Teams' relations
 // Can be use for teams of monsters etc (simple behavior)
 public class TeamStateBase : NetworkBehaviour
@@ -21,28 +20,6 @@ public class TeamStateBase : NetworkBehaviour
 
     public UnityEvent<TeamComponent> onUnitRegistered = new UnityEvent<TeamComponent>();
     public UnityEvent<TeamComponent> onUnitUnregistered = new UnityEvent<TeamComponent>();
-
-    // ======== Squads ======== //
-
-    #region Squads
-
-    private HashSet<Squad> squads = new HashSet<Squad>();
-    private Dictionary<GameObject, Squad> unitToSquadMap = new Dictionary<GameObject, Squad>();
-
-    public HashSet<Squad> Squads { get => squads; }
-    public Dictionary<GameObject, Squad> UnitToSquadMap { get => unitToSquadMap; }
-
-    public void RegisterSquad(Squad squad)
-    {
-        squads.Add(squad);
-    }
-
-    public void UnregisterSquad(Squad squad)
-    {
-        squads.Remove(squad);
-    }
-
-    #endregion
 
     #region UnitRegistration
 

@@ -8,7 +8,7 @@ public class MoveInstruction : Instruction
     [SerializeField]
     float distanceToReach = 0.1f;
     public MoveComponent moveComponent;
-    public Vector3 targetLocation;
+    public Vector3 targetLocation = Vector3.zero;
 
     public override bool CanDoInstruction()
     {

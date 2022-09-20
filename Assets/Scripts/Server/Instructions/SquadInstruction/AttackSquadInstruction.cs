@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-class AttackSquadInstruction : SquadInstruction
+class AttackSquadInstruction : SquadInstructionWithMove
 {
     public LifeComponent attackedComp;
 
@@ -18,13 +18,11 @@ class AttackSquadInstruction : SquadInstruction
         }
     }
 
-    public override bool CanDoInstruction()
-    {
-        return attackedComp != null;
-    }
+    protected override Vector3 TargetPos { get; set; }
 
-    public override void OnStart()
+    protected override void OnStart()
     {
+        TargetPos = attackedComp.transform.position;
         base.OnStart();
         attackedComp.OnNoLife.AddListener(OnTargetKilled);
     }
@@ -35,20 +33,20 @@ class AttackSquadInstruction : SquadInstruction
         attackedComp.OnNoLife.RemoveListener(OnTargetKilled);
     }
 
-    public override void OnEnd()
+    protected override void OnEnd()
     {
         base.OnEnd();
         OnStop();
     }
 
 
-    public override void OnUnitStart(GameObject unit)
+    protected override void OnUnitStart(GameObject unit)
     {
+        base.OnUnitStart(unit);
         WeaponComponent canAttackComp = unit.GetComponent<WeaponComponent>();
         if (canAttackComp != null)
         {
             canAttackComp.StartAttack(attackedComp);
-            //attackedComp.OnConstructionHelpStart(canAttackComp);
         }
         else
         {
@@ -56,13 +54,13 @@ class AttackSquadInstruction : SquadInstruction
         }
     }
 
-    public override void OnUnitStop(GameObject unit)
+    protected override void OnUnitStop(GameObject unit)
     {
+        base.OnUnitStop(unit);
         WeaponComponent canAttackComp = unit.GetComponent<WeaponComponent>();
         if (canAttackComp != null)
         {
             canAttackComp.StopAttack();
-            //attackedComp.OnConstructionHelpStop(canConstructComp);
         }
         else
         {
@@ -74,7 +72,7 @@ class AttackSquadInstruction : SquadInstruction
     {
         attackedComp.OnNoLife.RemoveListener(OnTargetKilled);
 
-        if (next == null)
+        if (Next == null)
         {
             // TODO : search for nearby entities to attack,
             // and assign a new AttackSquadInstruction if there is

@@ -33,6 +33,8 @@ public class RTSGameMode : NetworkBehaviour
     [HideInInspector]
     public RTSGameState gameState;
 
+    public static RTSGameMode Instance = null;
+    public InstructionsManager instructionsManager = new InstructionsManager();
 
     public class RTSPlayerStartData
     {
@@ -59,6 +61,7 @@ public class RTSGameMode : NetworkBehaviour
         if (!NetworkManager.Singleton.IsServer)
             return;
 
+        Instance = this;
         NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnect;
         NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
     }
@@ -175,5 +178,10 @@ public class RTSGameMode : NetworkBehaviour
                 e.Team.RegisterUnit(e);
             }
         }
+    }
+
+    private void Update()
+    {
+        instructionsManager.Update();
     }
 }

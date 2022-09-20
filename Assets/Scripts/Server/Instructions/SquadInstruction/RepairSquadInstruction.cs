@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-class RepairSquadInstruction : SquadInstruction
+class RepairSquadInstruction : SquadInstructionWithMove
 {
     public CanBeRepairedComponent inConstructionComp;
 
@@ -18,13 +18,11 @@ class RepairSquadInstruction : SquadInstruction
         }
     }
 
-    public override bool CanDoInstruction()
-    {
-        return inConstructionComp != null;
-    }
+    protected override Vector3 TargetPos { get; set; }
 
-    public override void OnStart()
+    protected override void OnStart()
     {
+        TargetPos = inConstructionComp.transform.position;
         base.OnStart();
         inConstructionComp.onConstructionEnd.AddListener(OnConstructionEnd);
     }
@@ -35,14 +33,16 @@ class RepairSquadInstruction : SquadInstruction
         inConstructionComp.onConstructionEnd.RemoveListener(OnConstructionEnd);
     }
 
-    public override void OnEnd()
+    protected override void OnEnd()
     {
         base.OnEnd();
         inConstructionComp.onConstructionEnd.RemoveListener(OnConstructionEnd);
     }
 
-    public override void OnUnitStart(GameObject unit)
+    protected override void OnUnitStart(GameObject unit)
     {
+        base.OnUnitStart(unit);
+
         CanRepairComponent canConstructComp = unit.GetComponent<CanRepairComponent>();
         if (canConstructComp != null)
         {
@@ -54,7 +54,7 @@ class RepairSquadInstruction : SquadInstruction
         }
     }
 
-    public override void OnUnitStop(GameObject unit)
+    protected override void OnUnitStop(GameObject unit)
     {
         CanRepairComponent canConstructComp = unit.GetComponent<CanRepairComponent>();
         if (canConstructComp != null)
@@ -65,11 +65,15 @@ class RepairSquadInstruction : SquadInstruction
         {
             Debug.LogWarning("Unit should possess a CanRepairComponent");
         }
+
+        base.OnUnitStop(unit);
     }
 
     public void OnConstructionEnd()
     {
         inConstructionComp.onConstructionEnd.RemoveListener(OnConstructionEnd);
-        RunNextInstruction();
+
+        End();
+        moveSquadInstruction.RunNextInstruction();
     }
 }
