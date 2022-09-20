@@ -7,7 +7,7 @@ public abstract class SquadInstruction
     //public Squad squad;
     public List<GameObject> units = new List<GameObject>();
 
-    private int nbPrev = 0;
+    public int PreviousTasksCount { get; private set; }
 
     SquadInstruction next;
     public object blackboard;
@@ -33,13 +33,12 @@ public abstract class SquadInstruction
 
             if (value != null)
             {
-                value.nbPrev++;
+                value.OnPreviousTaskAdd(value);
             }
 
             if (oldNext != null)
             {
-                oldNext.nbPrev--;
-                oldNext.CheckEnd();
+                oldNext.OnPreviousTaskRemove(oldNext);
             }
         }
 
@@ -49,9 +48,20 @@ public abstract class SquadInstruction
         }
     }
 
-    protected void CheckEnd()
+    protected virtual void OnPreviousTaskAdd(SquadInstruction instructionToAdd)
     {
-        if (units.Count == 0 && nbPrev == 0)
+        PreviousTasksCount++;
+    }
+
+    protected virtual void OnPreviousTaskRemove(SquadInstruction instructionToRemove)
+    {
+        PreviousTasksCount--;
+        CheckEnd();
+    }
+
+    protected virtual void CheckEnd()
+    {
+        if (PreviousTasksCount == 0 && units.Count == 0)
         {
             if (!hasEnded)
             {
