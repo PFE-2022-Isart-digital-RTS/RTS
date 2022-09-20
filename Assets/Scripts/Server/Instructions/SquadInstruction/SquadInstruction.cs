@@ -48,12 +48,12 @@ public abstract class SquadInstruction
         }
     }
 
-    protected virtual void OnPreviousTaskAdd(SquadInstruction instructionToAdd)
+    public virtual void OnPreviousTaskAdd(SquadInstruction instructionToAdd)
     {
         PreviousTasksCount++;
     }
 
-    protected virtual void OnPreviousTaskRemove(SquadInstruction instructionToRemove)
+    public virtual void OnPreviousTaskRemove(SquadInstruction instructionToRemove)
     {
         PreviousTasksCount--;
         CheckEnd();

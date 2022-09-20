@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class WaitSquadInstruction : SquadInstruction
 {
-    protected override void OnPreviousTaskRemove(SquadInstruction instructionToRemove)
+    public override void OnPreviousTaskRemove(SquadInstruction instructionToRemove)
     {
         base.OnPreviousTaskRemove(instructionToRemove);
 
