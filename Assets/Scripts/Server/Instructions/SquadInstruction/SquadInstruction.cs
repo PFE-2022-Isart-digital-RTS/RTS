@@ -76,7 +76,15 @@ public abstract class SquadInstruction
 
     }
 
-    public void End()
+    public void TryEnd()
+    {
+        if (!hasEnded)
+        {
+            End();
+        }
+    }
+
+    private void End()
     {
         hasEnded = true;
         OnEnd();
@@ -93,14 +101,6 @@ public abstract class SquadInstruction
 
     public virtual void OnUpdate()
     {
-    }
-
-    public virtual void OnStop()
-    {
-        foreach (GameObject unit in units)
-        {
-            OnUnitStop(unit);
-        }
     }
 
     public virtual void UnitStart(GameObject unit)

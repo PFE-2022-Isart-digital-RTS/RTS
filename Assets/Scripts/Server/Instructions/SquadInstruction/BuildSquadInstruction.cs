@@ -40,6 +40,6 @@ class BuildSquadInstruction : SquadInstructionWithMove
         moveSquadInstruction.Next = Next;
         repairSquadInstruction.moveSquadInstruction = moveSquadInstruction;
 
-        End();
+        TryEnd();
     }
 }

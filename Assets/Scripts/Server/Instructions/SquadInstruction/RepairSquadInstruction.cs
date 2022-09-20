@@ -27,12 +27,6 @@ class RepairSquadInstruction : SquadInstructionWithMove
         inConstructionComp.onConstructionEnd.AddListener(OnConstructionEnd);
     }
 
-    public override void OnStop()
-    {
-        base.OnStop();
-        inConstructionComp.onConstructionEnd.RemoveListener(OnConstructionEnd);
-    }
-
     protected override void OnEnd()
     {
         base.OnEnd();
@@ -73,7 +67,7 @@ class RepairSquadInstruction : SquadInstructionWithMove
     {
         inConstructionComp.onConstructionEnd.RemoveListener(OnConstructionEnd);
 
-        End();
+        TryEnd();
         moveSquadInstruction.RunNextInstruction();
     }
 }

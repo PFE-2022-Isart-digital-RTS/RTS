@@ -27,16 +27,10 @@ class AttackSquadInstruction : SquadInstructionWithMove
         attackedComp.OnNoLife.AddListener(OnTargetKilled);
     }
 
-    public override void OnStop()
-    {
-        base.OnStop();
-        attackedComp.OnNoLife.RemoveListener(OnTargetKilled);
-    }
-
     protected override void OnEnd()
     {
         base.OnEnd();
-        OnStop();
+        attackedComp.OnNoLife.RemoveListener(OnTargetKilled);
     }
 
 

@@ -87,11 +87,6 @@ public class MoveSquadInstruction : SquadInstruction
         UpdatePositions();
     }
 
-    protected override void OnEnd()
-    {
-        OnStop(); // TODO : not call this function?
-    }
-
     void UpdatePositions()
     {
         Vector3 OffsetFromStart;
