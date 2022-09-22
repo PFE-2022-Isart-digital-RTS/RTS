@@ -16,6 +16,11 @@ public class InstructionsManager
         }
     }
 
+    public SquadInstruction GetInstruction(GameObject unit)
+    {
+        return unitsToInstr.TryGetValue(unit, out SquadInstruction instr) ? instr : null;
+    }
+
     public void AddUpdate(SquadInstruction instr)
     {
         instructionsToUpdate.Add(instr);
@@ -25,6 +30,7 @@ public class InstructionsManager
     {
         instructionsToUpdate.Remove(instr);
     }
+
 
     public void AssignInstruction(IEnumerable<GameObject> units, SquadInstruction newInstruction)
     {

@@ -9,6 +9,9 @@ public class VillagerAI : EntityAIBase
 
     protected override void OnAttacked(WeaponComponent attacker, float nbDamages)
     {
-        TryAttack(attacker, fightbackCallRadius);
+        if (IsIdle())
+        {
+            TryAttack(attacker, fightbackCallRadius);
+        }
     }
 }

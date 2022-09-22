@@ -7,6 +7,9 @@ public class EntityAIBase : MonoBehaviour
     protected TeamComponent team;
     protected LifeComponent lifeComp;
 
+    protected InstructionsManager InstrManager { get => RTSGameMode.Instance.instructionsManager; }
+
+    #region MonoBehaviour
     private void Awake()
     {
         team = GetComponent<TeamComponent>();
@@ -23,14 +26,16 @@ public class EntityAIBase : MonoBehaviour
         lifeComp.OnAttacked -= OnAttacked;
     }
 
-    protected virtual void OnAttacked(WeaponComponent attacker, float nbDamages)
-    {
+    #endregion
 
-    }
+    #region Callbacks
+    protected virtual void OnAttacked(WeaponComponent attacker, float nbDamages) { }
+    #endregion
 
+    #region Utility
     protected void InsertInstruction(SquadInstruction newInstruction)
     {
-        RTSGameMode.Instance.instructionsManager.InsertInstruction(gameObject, newInstruction);
+        InstrManager.InsertInstruction(gameObject, newInstruction);
     }
 
     // Inserts an instruction for every unit of the same team around that unit
@@ -38,9 +43,20 @@ public class EntityAIBase : MonoBehaviour
     {
         ICollection<GameObject> units = team.Team.GetUnitsInRange(transform.position, radius);
 
-        RTSGameMode.Instance.instructionsManager.InsertInstruction(units, newInstruction);
+        InstrManager.InsertInstruction(units, newInstruction);
     }
 
+    protected SquadInstruction GetCurrentInstruction()
+    {
+        return InstrManager.GetInstruction(gameObject);
+    }
+
+    protected bool IsIdle()
+    {
+        return GetCurrentInstruction() == null;
+    }
+
+    #region TryAttack
     protected bool TryAttack(GameObject target)
     {
         LifeComponent attackerLifeComp = target.GetComponent<LifeComponent>();
@@ -77,4 +93,7 @@ public class EntityAIBase : MonoBehaviour
     {
         return TryAttack(target.gameObject);
     }
+    #endregion
+
+    #endregion
 }
