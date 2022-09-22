@@ -98,6 +98,7 @@ public abstract class SquadInstruction
     {
         hasEnded = true;
         OnEnd();
+        Next = null;
         RunNextInstruction();
     }
 
@@ -107,6 +108,8 @@ public abstract class SquadInstruction
 
     public virtual void OnClean()
     {
+        if (instructionManager != null)
+            instructionManager.RemoveUpdate(this);
     }
 
     public virtual void OnUpdate()

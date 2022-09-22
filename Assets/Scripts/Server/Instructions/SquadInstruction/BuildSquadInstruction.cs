@@ -8,9 +8,6 @@ class BuildSquadInstruction : SquadInstructionWithMove
     public Vector3 targetPosition;
     public GameObject buildingPrefab;
     public TeamState team;
-
-    protected override Vector3 TargetPos { get; set; }
-
     public GameObject SpawnBuilding()
     {
         GameObject go = GameObject.Instantiate(buildingPrefab, targetPosition, Quaternion.identity);
@@ -22,9 +19,8 @@ class BuildSquadInstruction : SquadInstructionWithMove
 
     protected override void OnStart()
     {
-        TargetPos = targetPosition;
-
         base.OnStart();
+        SetTarget(targetPosition);
     }
 
     protected override void OnUnitStart(GameObject unit)

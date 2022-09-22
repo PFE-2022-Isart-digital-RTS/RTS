@@ -49,14 +49,6 @@ public class InstructionsManager
         }
     }
 
-    public void InsertInstruction(IEnumerable<GameObject> units, SquadInstruction newInstruction)
-    {
-        foreach (GameObject unit in units)
-        {
-            InsertInstruction(unit, newInstruction);
-        }
-    }
-
     public void InsertInstruction(GameObject unit, SquadInstruction newInstruction)
     {
         SquadInstruction oldInstr;
@@ -65,9 +57,38 @@ public class InstructionsManager
 
         unitsToInstr[unit] = newInstruction;
 
-        if (newInstruction != null)
+        newInstruction.instructionManager = this;
+        AddUpdate(newInstruction);
+        newInstruction.Next = oldInstr;
+        newInstruction.UnitStart(unit);
+    }
+
+    public void InsertInstruction(ICollection<GameObject> units, SquadInstruction newInstruction)
+    {
+        Dictionary<GameObject, SquadInstruction> unitToNextInstruction = new Dictionary<GameObject, SquadInstruction>();
+
+        foreach (GameObject unit in units)
         {
-            newInstruction.Next = oldInstr;
+            SquadInstruction oldInstr;
+            if (unitsToInstr.TryGetValue(unit, out oldInstr) && oldInstr != null)
+                oldInstr.UnitStop(unit);
+
+            unitsToInstr[unit] = newInstruction;
+
+            unitToNextInstruction.Add(unit, oldInstr);
+        }
+
+        RedirectSquadInstruction redirection = new RedirectSquadInstruction()
+        {
+            UnitToNextInstruction = unitToNextInstruction
+        };
+
+        newInstruction.instructionManager = this;
+        AddUpdate(newInstruction);
+        newInstruction.Next = redirection;
+
+        foreach (GameObject unit in units)
+        {
             newInstruction.UnitStart(unit);
         }
     }

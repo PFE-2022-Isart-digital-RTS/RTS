@@ -18,12 +18,10 @@ class RepairSquadInstruction : SquadInstructionWithMove
         }
     }
 
-    protected override Vector3 TargetPos { get; set; }
-
     protected override void OnStart()
     {
-        TargetPos = inConstructionComp.transform.position;
         base.OnStart();
+        SetTarget(inConstructionComp.gameObject);
         inConstructionComp.onConstructionEnd.AddListener(OnConstructionEnd);
     }
 

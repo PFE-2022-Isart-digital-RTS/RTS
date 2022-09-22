@@ -17,13 +17,11 @@ class AttackSquadInstruction : SquadInstructionWithMove
             }
         }
     }
-
-    protected override Vector3 TargetPos { get; set; }
-
     protected override void OnStart()
     {
-        TargetPos = attackedComp.transform.position;
         base.OnStart();
+        SetTarget(attackedComp.gameObject);
+        instructionManager.AddUpdate(moveSquadInstruction); // The position has to be updated even when no units has joined the task for IsInRange()
         attackedComp.OnNoLife.AddListener(OnTargetKilled);
     }
 
@@ -31,6 +29,8 @@ class AttackSquadInstruction : SquadInstructionWithMove
     {
         base.OnEnd();
         attackedComp.OnNoLife.RemoveListener(OnTargetKilled);
+        if (moveSquadInstruction != null)
+            moveSquadInstruction.TryEnd();
     }
 
 
@@ -62,6 +62,17 @@ class AttackSquadInstruction : SquadInstructionWithMove
         }
     }
 
+    public override void OnUpdate()
+    {
+        base.OnUpdate();
+
+        List<GameObject> unitsToUpdate = new List<GameObject>(units);
+        foreach (GameObject unit in unitsToUpdate)
+        {
+            TryMoveTo(unit);
+        }
+    }
+
     public void OnTargetKilled()
     {
         attackedComp.OnNoLife.RemoveListener(OnTargetKilled);
@@ -72,6 +83,9 @@ class AttackSquadInstruction : SquadInstructionWithMove
             // and assign a new AttackSquadInstruction if there is
         }
 
-        RunNextInstruction();
+        if (moveSquadInstruction != null)
+            moveSquadInstruction.TryEnd();
+
+        TryEnd();
     }
 }

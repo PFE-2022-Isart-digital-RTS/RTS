@@ -21,6 +21,7 @@ public class LifeComponent : NetworkBehaviour
 
     public UnityEvent OnNoLife;
     public UnityEvent OnFullLife;
+    public UnityAction<WeaponComponent, float> OnAttacked;
 
     [SerializeField]
     GameObject healthBar;
@@ -76,6 +77,7 @@ public class LifeComponent : NetworkBehaviour
     public void DealMeleeDamages(WeaponComponent attacker, float nbDamages)
     {
         DealDamages(nbDamages);
+        OnAttacked?.Invoke(attacker, nbDamages);
     }
 
     public void DealDamages(float damages)

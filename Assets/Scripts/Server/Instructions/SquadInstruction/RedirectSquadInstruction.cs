@@ -14,7 +14,8 @@ public class RedirectSquadInstruction : SquadInstruction
 
             foreach (KeyValuePair<GameObject, SquadInstruction> pair in unitToNextInstruction)
             {
-                pair.Value.OnPreviousTaskAdd(this);
+                if (pair.Value != null)
+                    pair.Value.OnPreviousTaskAdd(this);
             }
         }
     }
@@ -41,7 +42,8 @@ public class RedirectSquadInstruction : SquadInstruction
 
         foreach (KeyValuePair<GameObject, SquadInstruction> pair in unitToNextInstruction)
         {
-            pair.Value.OnPreviousTaskRemove(this);
+            if (pair.Value != null)
+                pair.Value.OnPreviousTaskRemove(this);
         }
     }
 }

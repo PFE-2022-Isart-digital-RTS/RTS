@@ -7,6 +7,7 @@ public class MeleeWeapon : WeaponComponent
     public float attackDamages = 1f;
     public float attackSpeed = 0.4f; // nbAttacks per second
     public float attackHitRatio = 0.5f; // the enemy will receive damages at attackSpeed * attackHitRatio seconds after the start
+    public float attackMaxDist = 5f;
 
     Coroutine attackCoroutine;
     LifeComponent target;

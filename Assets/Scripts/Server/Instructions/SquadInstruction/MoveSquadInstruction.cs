@@ -4,22 +4,53 @@ using UnityEngine;
 
 public abstract class SquadInstructionWithMove : SquadInstruction
 {
-    public MoveSquadInstruction moveSquadInstruction;
+    public MoveToEntitySquadInstruction moveSquadInstruction;
 
-    protected abstract Vector3 TargetPos { get; set; }
-
-    protected override void OnStart()
+    public void SetTarget(Vector3 target)
     {
-        base.OnStart();
-
         if (moveSquadInstruction == null)
         {
-            moveSquadInstruction = new MoveSquadInstruction
+            moveSquadInstruction = new MoveToEntitySquadInstruction
             {
-                targetPosition = TargetPos,
+                targetPosition = target,
                 Next = this
             };
+
+            moveSquadInstruction.OnPreviousTaskAdd(this);
         }
+        else
+        {
+            moveSquadInstruction.targetPosition = target;
+            moveSquadInstruction.goTarget = null;
+        }
+    }
+
+    public void SetTarget(GameObject target)
+    {
+        if (moveSquadInstruction == null)
+        {
+            moveSquadInstruction = new MoveToEntitySquadInstruction
+            {
+                goTarget = target,
+                targetPosition = target.transform.position,
+                Next = this
+            };
+
+            moveSquadInstruction.OnPreviousTaskAdd(this);
+        }
+        else
+        {
+            moveSquadInstruction.targetPosition = target.transform.position;
+            moveSquadInstruction.goTarget = target;
+        }
+    }
+
+    protected override void OnEnd()
+    {
+        base.OnEnd();
+
+        if (moveSquadInstruction != null)
+            moveSquadInstruction.OnPreviousTaskRemove(this);
     }
 
     public override void UnitStart(GameObject unit)
@@ -59,6 +90,8 @@ public class MoveSquadInstruction : SquadInstruction
 
     protected override void OnStart()
     {
+        base.OnStart();
+
         UpdatePositions();
     }
 
@@ -83,8 +116,6 @@ public class MoveSquadInstruction : SquadInstruction
         moveComponent.moveInstruction = null;
         
         base.OnUnitStop(unit);
-
-        UpdatePositions();
     }
 
     void UpdatePositions()
@@ -154,6 +185,8 @@ public class MoveSquadInstruction : SquadInstruction
 
     public override void OnUpdate()
     {
+        base.OnUpdate();
+
         UpdatePositions();
 
         List<GameObject> unitsCopy = new List<GameObject>(units);
@@ -164,5 +197,18 @@ public class MoveSquadInstruction : SquadInstruction
                 RunNextInstruction(unit); 
             }
         }
+    }
+}
+
+public class MoveToEntitySquadInstruction : MoveSquadInstruction
+{
+    public GameObject goTarget;
+
+    public override void OnUpdate()
+    {
+        base.OnUpdate();
+
+        if (goTarget != null)
+            targetPosition = goTarget.transform.position;
     }
 }

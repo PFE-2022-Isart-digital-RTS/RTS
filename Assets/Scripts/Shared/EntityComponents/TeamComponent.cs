@@ -35,6 +35,17 @@ public class TeamComponent : NetworkBehaviour
             Team = newTeam;
         }
     }
+
+    public override void OnNetworkDespawn()
+    {
+        if (NetworkManager.IsServer)
+        {
+            RTSGameMode.Instance.instructionsManager.AssignInstruction(gameObject, null);
+            Team = null;
+        }
+
+        base.OnNetworkDespawn();
+    }
 }
 
 #if UNITY_EDITOR

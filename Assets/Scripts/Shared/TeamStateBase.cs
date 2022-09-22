@@ -69,7 +69,7 @@ public class TeamStateBase : NetworkBehaviour
     #region Teams
 
     public enum TeamRelation
-    { 
+    {
         Equal,
         Ally,
         Enemy
@@ -92,7 +92,7 @@ public class TeamStateBase : NetworkBehaviour
     public virtual bool IsAlly(TeamState otherTeam)
     {
         // ally teams are currently not supported, so every other team is an enemy team
-        return false; 
+        return false;
     }
 
     public bool IsEnemy(TeamState otherTeam)
@@ -101,6 +101,76 @@ public class TeamStateBase : NetworkBehaviour
         // - it is not the same team
         // - it is not an ally
         return this != otherTeam && !IsAlly(otherTeam);
+    }
+
+    #endregion
+
+    // Unity Functions
+    // often based around space, because units could be stored efficiently with a Quadtree,
+    // and the implementation of these functions would then change depending on this class' units' storage
+    #region Utility 
+
+    // Returns the first unit with the predicate to true
+    public GameObject GetUnit(System.Func<TeamComponent, bool> predicate)
+    {
+        foreach (TeamComponent unit in Units)
+        {
+            if (predicate.Invoke(unit))
+            {
+                return unit.gameObject;
+            }
+        }
+        return null;
+    }
+
+    public ICollection<GameObject> GetUnits(System.Func<TeamComponent, bool> predicate)
+    {
+        List<GameObject> returnedUnits = new List<GameObject>(Units.Count);
+        foreach (TeamComponent unit in Units)
+        {
+            if (predicate.Invoke(unit))
+            {
+                returnedUnits.Add(unit.gameObject);
+            }
+        }
+        return returnedUnits;
+    }
+
+    public GameObject GetUnit(System.Func<GameObject, GameObject, GameObject> predicate)
+    {
+        GameObject returned = null;
+        foreach (TeamComponent unit in Units)
+        {
+            returned = predicate.Invoke(returned, unit.gameObject);
+        }
+        return returned;
+    }
+
+    public GameObject GetClosestUnit(Vector3 pos)
+    {
+        float sqrDist = float.MaxValue;
+
+        return GetUnit((GameObject unit, GameObject otherUnit) =>
+        {
+            float currentSqrDist = (otherUnit.transform.position - pos).sqrMagnitude;
+            if (currentSqrDist > sqrDist)
+            {
+                sqrDist = currentSqrDist;
+                return otherUnit;
+            }
+            return unit;
+        });
+    }
+
+    public ICollection<GameObject> GetUnitsInRange(Vector3 pos, float maxDist)
+    {
+        float maxDistSqr = maxDist * maxDist;
+        return GetUnits((TeamComponent unit) =>
+        {
+            float currentSqrDist = (unit.transform.position - pos).sqrMagnitude;
+
+            return currentSqrDist <= maxDistSqr;
+        });
     }
 
     #endregion

@@ -251,7 +251,10 @@ public class RTSPlayerController : PlayerController
     {
         HaveOptionsComponent haveOptionsComp = unit.GetComponent<HaveOptionsComponent>();
         if (haveOptionsComp != null)
+        {
             selectables.Remove(haveOptionsComp);
+            m_selectedEntities.Remove(haveOptionsComp);
+        }
     }
 
     void OnContextualMenuButtonPreClick()
