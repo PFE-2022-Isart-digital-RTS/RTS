@@ -71,14 +71,24 @@ public abstract class SquadInstructionWithMove : SquadInstruction
         OnUnitStart(unit);            
     }
 
-    public bool TryMoveTo(GameObject unit)
+    public bool TryMoveTo(GameObject unit, Vector3 target)
     {
-        if (!moveSquadInstruction.IsInRange(unit))
+        if (!moveSquadInstruction.IsInRange(unit, target))
         {
             instructionManager.AssignInstruction(unit, moveSquadInstruction);
             return true;
         }
         return false;
+    }
+
+    public bool TryMoveTo(GameObject unit, GameObject target)
+    {
+        return TryMoveTo(unit, target.transform.position);
+    }
+
+    public bool TryMoveTo(GameObject unit)
+    {
+        return TryMoveTo(unit, moveSquadInstruction.targetPosition);
     }
 }
 
@@ -178,9 +188,14 @@ public class MoveSquadInstruction : SquadInstruction
         return center / units.Count;
     }
 
+    public bool IsInRange(GameObject unit, Vector3 target)
+    {
+        return (unit.transform.position - target).sqrMagnitude < stopDistSqr;
+    }
+
     public bool IsInRange(GameObject unit)
     {
-        return (unit.transform.position - targetPosition).sqrMagnitude < stopDistSqr;
+        return IsInRange(unit, targetPosition);
     }
 
     public override void OnUpdate()
@@ -210,5 +225,10 @@ public class MoveToEntitySquadInstruction : MoveSquadInstruction
 
         if (goTarget != null)
             targetPosition = goTarget.transform.position;
+    }
+
+    public bool IsInRange(GameObject unit, GameObject target)
+    {
+        return IsInRange(unit, target.transform.position);
     }
 }

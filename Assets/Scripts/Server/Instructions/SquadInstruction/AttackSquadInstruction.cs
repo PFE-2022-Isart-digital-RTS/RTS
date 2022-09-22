@@ -69,7 +69,7 @@ class AttackSquadInstruction : SquadInstructionWithMove
         List<GameObject> unitsToUpdate = new List<GameObject>(units);
         foreach (GameObject unit in unitsToUpdate)
         {
-            TryMoveTo(unit);
+            TryMoveTo(unit, attackedComp.gameObject);
         }
     }
 
