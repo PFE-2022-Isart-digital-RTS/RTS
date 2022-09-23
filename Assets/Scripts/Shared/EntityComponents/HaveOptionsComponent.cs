@@ -32,7 +32,8 @@ public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualiz
         haveInstructionsComponent = GetComponent<HaveInstructions>();
         moveComponent = GetComponent<MoveComponent>();
         m_material = GetComponentInChildren<Renderer>().material;
-        m_baseColor = m_material.color;
+        if (m_material.HasProperty("m_color"))
+            m_baseColor = m_material.color;
 
         foreach (ContextualMenuItemBase entityItem in items)
         {
