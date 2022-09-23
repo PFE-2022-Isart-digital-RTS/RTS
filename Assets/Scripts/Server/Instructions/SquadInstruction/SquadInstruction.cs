@@ -98,8 +98,8 @@ public abstract class SquadInstruction
     {
         hasEnded = true;
         OnEnd();
-        Next = null;
         RunNextInstruction();
+        Next = null;
     }
 
     protected virtual void OnEnd()
