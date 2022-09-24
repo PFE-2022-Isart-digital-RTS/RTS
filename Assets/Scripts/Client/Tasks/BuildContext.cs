@@ -8,8 +8,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "BuildContext", menuName = "ScriptableObjects/BuildContext", order = 1)]
 public class BuildContext : ContextualMenuItemBase
 {
-    [SerializeField]
-    private GameObject buildingToSpawnPrefab;
+    public GameObject buildingToSpawnPrefab;
 
     public override void OnInvoked(List<HaveOptionsComponent> contextualizables)
     {
@@ -34,7 +33,7 @@ public class BuildContext : ContextualMenuItemBase
 
         void OnPositionIndicate(Vector3 position)
         {
-            RTSPlayerController.LocalInstance.TryBuildServerRPC(m_targets, position, Data.buildingToSpawnPrefab.name);
+            RTSPlayerController.LocalInstance.TryBuildServerRPC(m_targets, position, Data.ActionName /* Data.buildingToSpawnPrefab.name */);
         }
     }
 }

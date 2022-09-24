@@ -190,7 +190,6 @@ GameObject:
   - component: {fileID: 6198982835640008788}
   - component: {fileID: 4444302557525839843}
   - component: {fileID: 1004548569993264518}
-  - component: {fileID: 1041815327066243127}
   - component: {fileID: 3253110474988349222}
   - component: {fileID: 1912764190482872433}
   m_Layer: 0
@@ -273,8 +272,6 @@ MonoBehaviour:
   actions:
   - Stop
   - Move
-  haveInstructionsComponent: {fileID: 0}
-  moveComponent: {fileID: 0}
   items:
   - {fileID: 11400000, guid: ca913dbcfd640ca4caa88d0f4e9ae15a, type: 2}
 --- !u!114 &1004548569993264518
@@ -292,6 +289,7 @@ MonoBehaviour:
   repLife:
     m_InternalValue: 10
   maxLife: 10
+  shouldDestroyOnNoLife: 1
   OnNoLife:
     m_PersistentCalls:
       m_Calls: []
@@ -299,18 +297,6 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   healthBar: {fileID: 6627852088515050489, guid: b65b9d7c23387a34e9553d8ba8e3255c, type: 3}
---- !u!114 &1041815327066243127
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 9105993614704995009}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d44b9cdcb832994389c6aa2aecca699, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &3253110474988349222
 MonoBehaviour:
   m_ObjectHideFlags: 0

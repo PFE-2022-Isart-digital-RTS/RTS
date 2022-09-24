@@ -36,19 +36,33 @@ public class RTSPlayerController : PlayerController
         return units;
     }
 
-    List<GameObject> NetObjectsToGameObjects(NetworkObjectReference[] netUnits) 
+    List<GameObject> NetObjectsToGameObjects(NetworkObjectReference[] netUnits, string option) 
     {
         List<GameObject> units = new List<GameObject>();
         foreach (NetworkObjectReference unitRef in netUnits)
         {
             if (unitRef.TryGet(out NetworkObject netUnit))
             {
-                TeamComponent team = netUnit.GetComponent<TeamComponent>();
-                if (team != null && team.team == PlayerState.Team)
+                if (IsSameTeam(netUnit.gameObject) && HasOption(netUnit.gameObject, option))
                     units.Add(netUnit.gameObject);
             }
         }
         return units;
+    }
+
+    public bool IsSameTeam(GameObject entity)
+    {
+        TeamComponent team = entity.GetComponent<TeamComponent>();
+        return team != null && team.team == PlayerState.Team;
+    }
+
+    public static bool HasOption(GameObject entity, string option)
+    {
+        HaveOptionsComponent haveOptions = entity.GetComponent<HaveOptionsComponent>();
+        if (haveOptions == null)
+            return false;
+
+        return haveOptions.ContainsOption(option);
     }
 
     #endregion
@@ -70,7 +84,7 @@ public class RTSPlayerController : PlayerController
         //ulong playerID = serverRpcParams.Receive.SenderClientId;
 
         // Retrieve the list of units
-        List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
+        List<GameObject> units = NetObjectsToGameObjects(unitsReferences, "Move");
 
         AssignInstruction(units, new MoveSquadInstruction { targetPosition = targetPosition });
     }
@@ -85,29 +99,34 @@ public class RTSPlayerController : PlayerController
         //ulong playerID = serverRpcParams.Receive.SenderClientId;
 
         // Retrieve the list of units
-        List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
+        List<GameObject> units = NetObjectsToGameObjects(unitsReferences, "Stop");
 
         AssignInstruction(units, null);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void TryBuildServerRPC(NetworkObjectReference[] unitsReferences, Vector3 targetPosition, string buildingName, ServerRpcParams serverRpcParams = default)
+    public void TryBuildServerRPC(NetworkObjectReference[] unitsReferences, Vector3 targetPosition, string actionName, ServerRpcParams serverRpcParams = default)
     {
         // TODO : verify if the call is correct, depending on the client id calling this function
         //ulong playerID = serverRpcParams.Receive.SenderClientId;
 
-        // Retrieve the list of units
-        List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
+        BuildContext item = (BuildContext)availableItems.Find((ContextualMenuItemBase menuItem) => menuItem.ActionName == actionName);
+        if (item == null)
+            return;
 
-        GameObject prefabBuildingToSpawn = PlayerState.Team.availableBuildings.Find((GameObject go) => go.name == buildingName);
-        if (prefabBuildingToSpawn == null)
-            Debug.LogWarning("Prefab not found in the team state's available buildings : hacks?");
-        else
+        // Retrieve the list of units
+        List<GameObject> units = NetObjectsToGameObjects(unitsReferences, actionName);
+
+        //GameObject prefabBuildingToSpawn = PlayerState.Team.availableBuildings.Find((GameObject go) => go.name == buildingName);
+        //if (prefabBuildingToSpawn == null)
+        //    Debug.LogWarning("Prefab not found in the team state's available buildings : hacks?");
+        //else
+        if (item != null)
         {
             AssignInstruction(units, new BuildSquadInstruction 
             { 
                 targetPosition = targetPosition, 
-                buildingPrefab = prefabBuildingToSpawn, 
+                buildingPrefab = item.buildingToSpawnPrefab, 
                 team = PlayerState.Team 
             });
         }
@@ -121,7 +140,7 @@ public class RTSPlayerController : PlayerController
         //ulong playerID = serverRpcParams.Receive.SenderClientId;
 
         // Retrieve the list of units
-        List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
+        List<GameObject> units = NetObjectsToGameObjects(unitsReferences, "Repair");
 
         CanBeRepairedComponent canBeRepaired;
         if (canBeRepairedComp.TryGet(out canBeRepaired))
@@ -142,7 +161,7 @@ public class RTSPlayerController : PlayerController
         //ulong playerID = serverRpcParams.Receive.SenderClientId;
 
         // Retrieve the list of units
-        List<GameObject> units = NetObjectsToGameObjects(unitsReferences);
+        List<GameObject> units = NetObjectsToGameObjects(unitsReferences, "Attack");
 
         NetworkObject toAttack;
         if (entity.TryGet(out toAttack))

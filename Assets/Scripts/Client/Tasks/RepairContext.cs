@@ -13,6 +13,15 @@ public class RepairContext : ContextualMenuItemBase
         new Context() { Data = this }.OnInvoked(contextualizables);
     }
 
+    public override string ItemName
+    {
+        get => "Repair";
+    }
+    public override string ActionName
+    {
+        get => ItemName;
+    }
+
     public new class Context : ContextualMenuItemBase.Context
     {
         NetworkBehaviourReference canBeRepairedComp;

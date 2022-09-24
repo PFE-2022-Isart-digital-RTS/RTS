@@ -19,6 +19,9 @@ public class LifeComponent : NetworkBehaviour
     [SerializeField]
     float maxLife = 10;
 
+    [SerializeField]
+    bool shouldDestroyOnNoLife = true;
+
     public UnityEvent OnNoLife;
     public UnityEvent OnFullLife;
     public UnityAction<WeaponComponent, float> OnAttacked;
@@ -37,13 +40,8 @@ public class LifeComponent : NetworkBehaviour
 
     public State state { private set; get; }
 
-    //public override void OnNetworkSpawn()
     public void Start()
     {
-    //    base.OnNetworkSpawn();
-    //}
-    //void Start()
-    //{
         UpdateState();
         if (NetworkManager.Singleton == null || NetworkManager.Singleton.IsClient)
         {
@@ -88,7 +86,8 @@ public class LifeComponent : NetworkBehaviour
             life = 0f;
             state = State.IsDead;
             OnNoLife?.Invoke();
-            Destroy(gameObject); 
+            if (shouldDestroyOnNoLife)
+                Destroy(gameObject); 
         }
         else
             state = State.IsDamaged;

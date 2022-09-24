@@ -13,6 +13,15 @@ public class AttackEntityContext : ContextualMenuItemBase
         new Context() { Data = this }.OnInvoked(contextualizables);
     }
 
+    public override string ItemName
+    {
+        get => "Attack";
+    }
+    public override string ActionName
+    {
+        get => ItemName;
+    }
+
     public new class Context : ContextualMenuItemBase.Context
     {
         private NetworkObjectReference[] m_targets;

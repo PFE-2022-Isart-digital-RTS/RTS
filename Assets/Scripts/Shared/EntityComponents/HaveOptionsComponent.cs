@@ -6,7 +6,6 @@ using Unity.Netcode;
 using UnityEditor;
 using UnityEngine;
 
-[RequireComponent(typeof(HaveInstructions), typeof(MoveComponent))]
 public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualizable
 {
     private bool m_isSelected = false;
@@ -16,31 +15,23 @@ public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualiz
 
     public List<string> actions;
 
-    //private bool isMoving;
-    //private Vector3 positionToReach;
-    //public float speed = 2f;
-    //public float distanceToReach = 0.1f;
-
-    [HideInInspector] public HaveInstructions haveInstructionsComponent;
-    [HideInInspector] public MoveComponent moveComponent;
-
     public List<ContextualMenuItemBase> items = new List<ContextualMenuItemBase>();
 
     #region MonoBehaviour
     protected void Awake()
     {
-        haveInstructionsComponent = GetComponent<HaveInstructions>();
-        moveComponent = GetComponent<MoveComponent>();
-        m_material = GetComponentInChildren<Renderer>().material;
-        if (m_material.HasProperty("m_color"))
-            m_baseColor = m_material.color;
+        //m_material = GetComponentInChildren<Renderer>().material;
+        //if (m_material.HasProperty("m_color"))
+        //    m_baseColor = m_material.color;
 
         foreach (ContextualMenuItemBase entityItem in items)
         {
             actions.Add(entityItem.ActionName);
         }
     }
+    #endregion
 
+    #region Options
     public void AddOption(string option)
     {
         if (!NetworkManager.Singleton.IsServer)
@@ -88,48 +79,25 @@ public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualiz
         RemoveOption(option.ActionName);
     }
 
-    //IEnumerator reg()
-    //{
-    //    yield return null;
-    //    team.RegisterUnit(this);
-    //}
+    public List<string> GetTasks()
+    {
+        return actions;
+    }
 
-    //private void OnEnable()
-    //{
-    //    StartCoroutine(reg());
-    //    //team.RegisterUnit(this);
-    //    //SharedGameManager.Instance.onRegisterEntity(team, this);
-    //}
+    public bool ContainsOption(string option)
+    {
+        return actions.Contains(option);
+    }
 
-    //private void OnDisable()
-    //{
-    //    team.UnregisterUnit(this);
-
-    //    //if (gameObject.scene.isLoaded)
-    //    //    SharedGameManager.Instance.onUnregisterEntity(team, this);
-    //}
-
-    //private void FixedUpdate()
-    //{
-    //    if (isMoving)
-    //    {
-    //        Transform selfTransform = transform;
-    //        Vector3 position = selfTransform.position;
-    //        Vector3 posToTarget = positionToReach - position;
-    //        float posToTargetDistance = posToTarget.magnitude;
-    //        Vector3 direction = posToTarget / posToTargetDistance;
-    //        position += speed * Time.fixedDeltaTime * direction;
-    //        selfTransform.position = position;
-
-    //        isMoving = posToTargetDistance > distanceToReach;
-    //    }
-    //}
     #endregion
+
+    #region Selection
 
     public void SetSelected(bool selected)
     {
         m_isSelected = selected;
-        m_material.color = m_isSelected ? Color.yellow : m_baseColor;
+        //if (m_material.HasProperty("m_color"))
+        //    m_material.color = m_isSelected ? Color.yellow : m_baseColor;
     }
     
     public bool IsSelected()
@@ -137,9 +105,6 @@ public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualiz
         return m_isSelected;
     }
 
-    public List<string> GetTasks()
-    {
-        return actions;
-    }
+    #endregion
 }
 

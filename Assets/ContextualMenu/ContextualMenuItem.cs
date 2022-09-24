@@ -20,7 +20,12 @@ public abstract class ContextualMenuItemBase : ScriptableObject, ITask<HaveOptio
 
     public virtual string ActionName
     {
-        get => "buy " + ItemName;
+        get => GetActionName(ItemName);
+    }
+
+    public static string GetActionName(string itemName)
+    {
+        return "buy " + itemName;
     }
 
     public abstract void OnInvoked(List<HaveOptionsComponent> contextualizables);
