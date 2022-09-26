@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
+using RepairSquadInstruction = SubscribeSquadInstruction<CanBeRepairedComponent, CanRepairComponent>;
+
 class BuildSquadInstruction : SquadInstructionWithMove
 {
     public Vector3 targetPosition;

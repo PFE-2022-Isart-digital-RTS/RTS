@@ -71,12 +71,16 @@ public class TeamStateBase : NetworkBehaviour
     public enum TeamRelation
     {
         Equal,
+        Neutral,
         Ally,
         Enemy
     }
 
-    public TeamRelation GetRelationTo(TeamState otherTeam)
+    public TeamRelation GetRelationTo(TeamStateBase otherTeam)
     {
+        if (otherTeam == null)
+            return TeamRelation.Neutral;
+
         if (this == otherTeam)
             return TeamRelation.Equal;
 
@@ -89,13 +93,13 @@ public class TeamStateBase : NetworkBehaviour
         return TeamRelation.Enemy;
     }
 
-    public virtual bool IsAlly(TeamState otherTeam)
+    public virtual bool IsAlly(TeamStateBase otherTeam)
     {
         // ally teams are currently not supported, so every other team is an enemy team
         return false;
     }
 
-    public bool IsEnemy(TeamState otherTeam)
+    public bool IsEnemy(TeamStateBase otherTeam)
     {
         // Other team is an enemy if :
         // - it is not the same team

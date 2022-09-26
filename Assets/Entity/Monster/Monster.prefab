@@ -194,6 +194,7 @@ GameObject:
   - component: {fileID: 1912764190482872433}
   - component: {fileID: 4531924623058947615}
   - component: {fileID: 319833785736312842}
+  - component: {fileID: 658753251037533158}
   m_Layer: 0
   m_Name: Monster
   m_TagString: Untagged
@@ -298,6 +299,12 @@ MonoBehaviour:
   OnFullLife:
     m_PersistentCalls:
       m_Calls: []
+  OnAttacked:
+    m_PersistentCalls:
+      m_Calls: []
+  OnKilled:
+    m_PersistentCalls:
+      m_Calls: []
   healthBar: {fileID: 6627852088515050489, guid: b65b9d7c23387a34e9553d8ba8e3255c, type: 3}
 --- !u!114 &3253110474988349222
 MonoBehaviour:
@@ -337,8 +344,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76200f3bd5ad84c4f87be122bf76c1cb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  constructionSpeed: 1
-  constructionMaxDist: 1
+  speedMultiplier: 1
 --- !u!114 &319833785736312842
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -355,3 +361,16 @@ MonoBehaviour:
   attackSpeed: 0.4
   attackHitRatio: 0.5
   attackMaxDist: 5
+--- !u!114 &658753251037533158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9105993614704995009}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2e089723e901af74ab58e4c58831f887, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemToAdd: {fileID: 11400000, guid: e435719b26a2be94a9a51d76c465ac61, type: 2}

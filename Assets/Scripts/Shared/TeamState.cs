@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Events;
 
 // The resources of the players
 [System.Serializable]
@@ -60,10 +61,44 @@ public class TeamState : TeamStateBase
     // Upgrades
     public float unitsDamageMultiplier = 1.0f;
 
-    // The list of buildings the player can potentially construct
-    // This is a safety for networking ; a cheater won't be able to spawn a prefab that is not in the list
-    // Used server only
-    public List<GameObject> availableBuildings = new List<GameObject>();
+    // TODO : put RTSPlayerController.availableItems in TeamState and add directly there
+    public List<ContextualMenuItemBase> itemsGainedFromMonsters = new List<ContextualMenuItemBase>();
+    public List<ContextualMenuItemBase> availableItems = new List<ContextualMenuItemBase>();
+
+    public UnityEvent<ContextualMenuItemBase> onItemAddedFromMonster;
+
+    public void AddItemFromMonster(ContextualMenuItemBase item)
+    {
+        if (!itemsGainedFromMonsters.Contains(item))
+        {
+            itemsGainedFromMonsters.Add(item);
+            availableItems.Add(item);
+
+            foreach (TeamComponent unit in Units)
+            {
+                if (unit.TryGetComponent(out WagonSubscriptionComponent wagon) && unit.TryGetComponent(out HaveOptionsComponent optionsComp))
+                {
+                    optionsComp.AddOption(item);
+                } 
+            }
+
+            onItemAddedFromMonster?.Invoke(item);
+        }
+    }
+
+    private void Awake()
+    {
+        onUnitRegistered.AddListener((TeamComponent newUnit) =>
+        {
+            if (newUnit.TryGetComponent(out WagonSubscriptionComponent wagon) && newUnit.TryGetComponent(out HaveOptionsComponent optionsComp))
+            {
+                foreach (ContextualMenuItemBase item in itemsGainedFromMonsters)
+                {
+                    optionsComp.AddOption(item);
+                }
+            }
+        });
+    }
 
     #region OnGameEnd
 

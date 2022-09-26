@@ -61,7 +61,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   units: []
+  onUnitRegistered:
+    m_PersistentCalls:
+      m_Calls: []
+  onUnitUnregistered:
+    m_PersistentCalls:
+      m_Calls: []
   unitsDamageMultiplier: 1
-  availableBuildings:
-  - {fileID: 9105993614704995009, guid: 9b8d7b51b8ef3f146b754c5d34ffc6e9, type: 3}
-  - {fileID: 9105993614704995009, guid: b4624a47d1611024cbdfa35b81d079ab, type: 3}
+  itemsGainedFromMonsters: []
+  availableItems:
+  - {fileID: 11400000, guid: ca913dbcfd640ca4caa88d0f4e9ae15a, type: 2}
+  - {fileID: 11400000, guid: 66ca5d234340138498ebb1eabce0a709, type: 2}

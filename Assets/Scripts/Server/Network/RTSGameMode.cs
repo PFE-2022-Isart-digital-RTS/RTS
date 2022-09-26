@@ -175,7 +175,8 @@ public class RTSGameMode : NetworkBehaviour
         {
             foreach (TeamComponent e in GameObject.FindObjectsOfType<TeamComponent>())
             {
-                e.Team.RegisterUnit(e);
+                if (e.Team != null)
+                    e.Team.RegisterUnit(e);
             }
         }
     }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-public class PlayerController : NetworkBehaviour
+public class PlayerController : Controller
 {
     //NetworkVariable<NetworkBehaviourReference> playerStateRef = new NetworkVariable<NetworkBehaviourReference>();
     PlayerState playerState;

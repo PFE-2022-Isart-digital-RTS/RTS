@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "RepairContext", menuName = "ScriptableObjects/RepairContext", order = 1)]
-public class RepairContext : ContextualMenuItemBase
+[CreateAssetMenu(fileName = "SubToWagonContext", menuName = "ScriptableObjects/SubToWagonContext", order = 1)]
+public class SubToWagonContext : ContextualMenuItemBase
 {
     public override void OnInvoked(List<HaveOptionsComponent> contextualizables)
     {
@@ -15,7 +15,7 @@ public class RepairContext : ContextualMenuItemBase
 
     public override string ItemName
     {
-        get => "Repair";
+        get => "SubToWagon";
     }
     public override string ActionName
     {
@@ -26,7 +26,7 @@ public class RepairContext : ContextualMenuItemBase
     {
         NetworkBehaviourReference canBeRepairedComp;
 
-        public CanBeRepairedComponent CanBeRepairedComp
+        public WagonSubscriptionComponent CanBeRepairedComp
         {
             set => canBeRepairedComp = value; 
         }
@@ -35,7 +35,7 @@ public class RepairContext : ContextualMenuItemBase
         {
             NetworkObjectReference[] m_targets = HaveOptionsToNetworkRefs(targets);
 
-            RTSPlayerController.LocalInstance.TryRepairServerRPC(m_targets, canBeRepairedComp);
+            RTSPlayerController.LocalInstance.TrySubToWagonServerRPC(m_targets, canBeRepairedComp);
         }
     }
 }

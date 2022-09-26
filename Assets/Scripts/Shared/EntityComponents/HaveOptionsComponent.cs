@@ -40,6 +40,9 @@ public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualiz
             return;
         }
 
+        if (actions.Contains(option))
+            return;
+
         actions.Add(option);
         AddOptionClientRPC(option);
     }
@@ -47,12 +50,18 @@ public class HaveOptionsComponent : NetworkBehaviour, ISelectable, IContextualiz
     [ClientRpc]
     public void AddOptionClientRPC(string option)
     {
+        if (actions.Contains(option))
+            return;
         actions.Add(option);
     }
 
     public void AddOption(ContextualMenuItemBase option)
     {
+        if (items.Contains(option))
+            return;
+
         AddOption(option.ActionName);
+        items.Add(option);
     }
 
     [ClientRpc]

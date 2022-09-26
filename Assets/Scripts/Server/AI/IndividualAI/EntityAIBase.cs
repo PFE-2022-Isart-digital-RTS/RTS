@@ -18,12 +18,12 @@ public class EntityAIBase : MonoBehaviour
 
     private void OnEnable()
     {
-        lifeComp.OnAttacked += OnAttacked;
+        lifeComp.OnAttacked.AddListener(OnAttacked);
     }
 
     private void OnDisable()
     {
-        lifeComp.OnAttacked -= OnAttacked;
+        lifeComp.OnAttacked.RemoveListener(OnAttacked);
     }
 
     #endregion

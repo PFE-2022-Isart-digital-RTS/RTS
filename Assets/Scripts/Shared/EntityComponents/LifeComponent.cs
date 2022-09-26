@@ -24,21 +24,35 @@ public class LifeComponent : NetworkBehaviour
 
     public UnityEvent OnNoLife;
     public UnityEvent OnFullLife;
-    public UnityAction<WeaponComponent, float> OnAttacked;
+    public UnityEvent<WeaponComponent, float> OnAttacked;
+    public UnityEvent<WeaponComponent, float> OnKilled;
 
     [SerializeField]
     GameObject healthBar;
 
-    public float lifeRatio { get { return life / maxLife; } }
+    public float LifeRatio { get { return life / maxLife; } }
+    public float Life 
+    { 
+        get => life;  
+        set
+        {
+            float diff = value - Life;
+            if (diff < 0)
+                DealDamages(-diff);
+            else
+                Heal(diff);
+        }
+    }
+    public float MaxLife { get => maxLife; }
 
-    public enum State
+    public enum LifeState
     { 
         IsFullLife,
         IsDamaged,
         IsDead
     }
 
-    public State state { private set; get; }
+    public LifeState State { private set; get; }
 
     public void Start()
     {
@@ -47,10 +61,10 @@ public class LifeComponent : NetworkBehaviour
         {
             GameObject progressBarGO = Instantiate(healthBar, gameObject.transform.position + new Vector3(0, 2.5f, 0), Quaternion.identity, transform);
             IProgressBar progressBar = progressBarGO.GetComponent<IProgressBar>();
-            progressBar.value = lifeRatio;
+            progressBar.value = LifeRatio;
             repLife.OnValueChanged += (float oldValue, float newValue) =>
             {
-                progressBar.value = lifeRatio;
+                progressBar.value = LifeRatio;
             };
 
             if (Camera.main != null) 
@@ -62,47 +76,57 @@ public class LifeComponent : NetworkBehaviour
     {
         if (life <= 0f)
         {
-            state = State.IsDead;
+            State = LifeState.IsDead;
         }
         else if (life >= maxLife)
         {
-            state = State.IsFullLife;
+            State = LifeState.IsFullLife;
         }
         else 
-            state = State.IsDamaged;
+            State = LifeState.IsDamaged;
     }
 
     public void DealMeleeDamages(WeaponComponent attacker, float nbDamages)
     {
+        if (State == LifeState.IsDead)
+            return;
+
         DealDamages(nbDamages);
         OnAttacked?.Invoke(attacker, nbDamages);
+        if (State == LifeState.IsDead)
+            OnKilled?.Invoke(attacker, nbDamages);
     }
 
+    // damages : Positive value only
     public void DealDamages(float damages)
     {
         life -= damages;
-        if (state != State.IsDead && life <= 0f)
+        if (life <= 0f)
         {
             life = 0f;
-            state = State.IsDead;
-            OnNoLife?.Invoke();
-            if (shouldDestroyOnNoLife)
-                Destroy(gameObject); 
+            if (State != LifeState.IsDead)
+            {
+                State = LifeState.IsDead;
+                OnNoLife?.Invoke();
+                if (shouldDestroyOnNoLife)
+                    Destroy(gameObject);
+            }
         }
         else
-            state = State.IsDamaged;
+            State = LifeState.IsDamaged;
     }
 
+    // nbLifeAdded : Positive value only
     public void Heal(float nbLifeAdded)
     {
         life += nbLifeAdded;
         if (life >= maxLife)
         {
             life = maxLife;
-            state = State.IsFullLife;
+            State = LifeState.IsFullLife;
             OnFullLife?.Invoke();
         }
         else
-            state = State.IsDamaged;
+            State = LifeState.IsDamaged;
     }
 }

@@ -9,6 +9,9 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
+using RepairSquadInstruction = SubscribeSquadInstruction<CanBeRepairedComponent, CanRepairComponent>;
+using WagonSubscriptionInstruction = SubscribeSquadInstruction<WagonSubscriptionComponent, CanSubToWagonComponent>;
+
 // TODO : Link each PlayerController to the PlayerState through network?
 
 // Local to each client, responsible of the ui and the selection, 
@@ -110,17 +113,13 @@ public class RTSPlayerController : PlayerController
         // TODO : verify if the call is correct, depending on the client id calling this function
         //ulong playerID = serverRpcParams.Receive.SenderClientId;
 
-        BuildContext item = (BuildContext)availableItems.Find((ContextualMenuItemBase menuItem) => menuItem.ActionName == actionName);
+        BuildContext item = (BuildContext) PlayerState.Team.availableItems.Find((ContextualMenuItemBase menuItem) => menuItem.ActionName == actionName);
         if (item == null)
             return;
 
         // Retrieve the list of units
         List<GameObject> units = NetObjectsToGameObjects(unitsReferences, actionName);
 
-        //GameObject prefabBuildingToSpawn = PlayerState.Team.availableBuildings.Find((GameObject go) => go.name == buildingName);
-        //if (prefabBuildingToSpawn == null)
-        //    Debug.LogWarning("Prefab not found in the team state's available buildings : hacks?");
-        //else
         if (item != null)
         {
             AssignInstruction(units, new BuildSquadInstruction 
@@ -151,7 +150,26 @@ public class RTSPlayerController : PlayerController
         {
             Debug.LogError("Invalid component through rpc.");
         }
+    }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void TrySubToWagonServerRPC(NetworkObjectReference[] unitsReferences, NetworkBehaviourReference wagonSubscriptionRef, ServerRpcParams serverRpcParams = default)
+    {
+        // TODO : verify if the call is correct, depending on the client id calling this function
+        //ulong playerID = serverRpcParams.Receive.SenderClientId;
+
+        // Retrieve the list of units
+        List<GameObject> units = NetObjectsToGameObjects(unitsReferences, "SubToWagon");
+
+        WagonSubscriptionComponent wagonSubscription;
+        if (wagonSubscriptionRef.TryGet(out wagonSubscription))
+        {
+            AssignInstruction(units, new WagonSubscriptionInstruction { inConstructionComp = wagonSubscription });
+        }
+        else
+        {
+            Debug.LogError("Invalid component through rpc.");
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -187,7 +205,7 @@ public class RTSPlayerController : PlayerController
         if (validOptionComps.Count == 0)
             return;
 
-        ContextualMenuItem item = (ContextualMenuItem) availableItems.Find((ContextualMenuItemBase menuItem) => menuItem.ActionName == actionName);
+        ContextualMenuItem item = (ContextualMenuItem)PlayerState.Team.availableItems.Find((ContextualMenuItemBase menuItem) => menuItem.ActionName == actionName);
         if (item == null)
             Debug.LogWarning("Player can't purchase item : item not listed in RTSPlayerController");
         else
@@ -218,21 +236,12 @@ public class RTSPlayerController : PlayerController
     public Action<Vector3> RequestPosition { get; set; }
     public Action<GameObject> RequestEntity { get; set; }
 
-    public List<ContextualMenuItemBase> availableItems = new List<ContextualMenuItemBase>();
-
     List<HaveOptionsComponent> m_selectedEntities = new List<HaveOptionsComponent>();
 
     #region MonoBehaviour
 
-    private void Awake()
+    private void Init()
     {
-        //if (!IsOwner)
-        //if (LocalInstance != this) // Is Owner not working
-        //    return;
-
-        //SharedGameManager.Instance.onRegisterEntity += RegisterEntity;
-        //SharedGameManager.Instance.onUnregisterEntity += UnregisterEntity;
-
         m_layerGround = 1 << LayerMask.NameToLayer("Floor");
 
         btnMove.onValueChanged.AddListener(delegate
@@ -250,13 +259,18 @@ public class RTSPlayerController : PlayerController
 
         m_contextualMenu.AddTask("Move", new MoveContext());
         m_contextualMenu.AddTask("Stop", new Stop());
-        foreach (ContextualMenuItemBase entityItem in availableItems)
+        foreach (ContextualMenuItemBase entityItem in PlayerState.Team.availableItems)
         {
             if (entityItem != null)
                 m_contextualMenu.AddTask(entityItem.ActionName, entityItem);
             else
                 Debug.LogWarning("null element in RTSPlayerController : availableItems");
         }
+
+        PlayerState.Team.onItemAddedFromMonster.AddListener((ContextualMenuItemBase monsterItem) =>
+        {
+            m_contextualMenu.AddTask(monsterItem.ActionName, monsterItem);
+        });
     }
 
     public void OnUnitRegistered(TeamComponent unit)
@@ -283,6 +297,8 @@ public class RTSPlayerController : PlayerController
 
     private void OnEnable()
     {
+        Init();
+
         if (!IsOwner)
             return;
 
@@ -398,6 +414,25 @@ public class RTSPlayerController : PlayerController
         return OnMouseOnAllyEntity(hit, entity);
     }
 
+
+    private bool OnMouseOnNeutralEntity(RaycastHit hit, TeamComponent entity)
+    {
+        WagonSubscriptionComponent wagonSub = entity.GetComponent<WagonSubscriptionComponent>();
+        if (wagonSub != null)
+        {
+            // TODO : Change mouse icon into repair
+            if (Input.GetMouseButtonDown(1))
+            {
+                // TODO : Repair Context
+                SubToWagonContext.Context subToWagon = new SubToWagonContext.Context() { CanBeRepairedComp = wagonSub };
+                subToWagon.OnInvoked(m_selectedEntities);
+                return true;
+            }
+        }
+
+        return false; 
+    }
+
     private bool OnMouseNotOnEntity(RaycastHit hit)
     {
         if (RequestPosition == null)
@@ -421,10 +456,13 @@ public class RTSPlayerController : PlayerController
         TeamComponent teamComp = hit.collider.transform.parent.GetComponent<TeamComponent>();
         if (teamComp != null)
         {
-            switch (teamComp.Team.GetRelationTo(PlayerState.Team))
+            switch (PlayerState.Team.GetRelationTo(teamComp.Team))
             {
                 case TeamState.TeamRelation.Equal:
                     return OnMouseOnOwnedEntity(hit, teamComp);
+
+                case TeamState.TeamRelation.Neutral:
+                    return OnMouseOnNeutralEntity(hit, teamComp);
 
                 case TeamState.TeamRelation.Ally:
                     return OnMouseOnAllyEntity(hit, teamComp);
